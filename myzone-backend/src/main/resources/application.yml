@@ -1,0 +1,135 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/myzone?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true
+    username: root
+    password: mysql
+    # HikariCP连接池配置
+    hikari:
+      # 连接池名称
+      pool-name: MyZoneHikariCP
+      # 最小空闲连接数
+      minimum-idle: 5
+      # 最大连接池大小
+      maximum-pool-size: 20
+      # 自动提交
+      auto-commit: true
+      # 连接超时时间（毫秒）
+      connection-timeout: 30000
+      # 空闲连接超时时间（毫秒）
+      idle-timeout: 600000
+      # 连接最大存活时间（毫秒）
+      max-lifetime: 1800000
+      # 连接测试查询
+      connection-test-query: SELECT 1
+      # 验证超时时间（毫秒）
+      validation-timeout: 5000
+      # 泄漏检测阈值（毫秒）
+      leak-detection-threshold: 60000
+  # 事务管理配置
+  transaction:
+    default-timeout: 30s
+    rollback-on-commit-failure: true
+  # JPA配置（如果使用）
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  # 文件上传配置
+  servlet:
+    multipart:
+      # 启用文件上传
+      enabled: true
+      # 单个文件最大大小（100MB）
+      max-file-size: 100MB
+      # 总请求最大大小（200MB）
+      max-request-size: 200MB
+      # 文件写入磁盘的阈值
+      file-size-threshold: 2KB
+      # 临时文件位置
+      location: ${java.io.tmpdir}
+
+# 文件上传配置
+file:
+  upload:
+    # 上传文件基础路径
+    base-path: uploads
+    # 视频文件路径
+    video-path: videos
+    # 图片文件路径
+    image-path: images
+    # 允许的视频文件类型
+    allowed-video-types: .mp4,.avi,.mov,.wmv,.flv,.mkv
+    # 允许的图片文件类型
+    allowed-image-types: .jpg,.jpeg,.png,.gif,.bmp,.webp
+    # 最大文件大小（字节）
+    max-file-size: 104857600
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.sxw.myzonebackend.entity
+  configuration:
+    # 开启驼峰命名转换
+    map-underscore-to-camel-case: true
+    # 开启延迟加载
+    lazy-loading-enabled: true
+    # 积极延迟加载
+    aggressive-lazy-loading: false
+    # 延迟加载触发方法
+    lazy-load-trigger-methods: equals,clone,hashCode,toString
+    # 开启二级缓存
+    cache-enabled: true
+    # 开启结果集自动映射
+    auto-mapping-behavior: partial
+    # 开启自动映射未知列
+    auto-mapping-unknown-column-behavior: warning
+    # 默认执行器类型
+    default-executor-type: simple
+    # 默认语句超时时间
+    default-statement-timeout: 30
+    # 默认获取结果集超时时间
+    default-fetch-size: 100
+    # 默认结果集类型
+    default-result-set-type: FORWARD_ONLY
+    # 安全行边界启用
+    safe-row-bounds-enabled: false
+    # 安全结果处理器启用
+    safe-result-handler-enabled: true
+    # 是否开启自动生成主键
+    use-generated-keys: true
+    # 是否使用列标签代替列名
+    use-column-label: true
+    # 是否开启本地缓存
+    local-cache-scope: session
+    # 设置但未使用的参数处理
+    call-setters-on-nulls: false
+    # 返回值为null时的处理
+    return-instance-for-empty-row: false
+    # 日志实现
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# JWT配置
+jwt:
+  secret: myzone-super-secret-key-2024-very-long-and-secure-for-jwt-signing-256-bits-minimum
+  expiration: 86400000  # 24小时
+
+# 日志配置
+logging:
+  level:
+    com.sxw.myzonebackend: debug
+    com.zaxxer.hikari: debug
+    org.springframework.transaction: debug
+    org.mybatis: debug
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n" 
