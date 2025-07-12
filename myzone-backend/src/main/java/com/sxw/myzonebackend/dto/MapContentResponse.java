@@ -73,7 +73,7 @@ public class MapContentResponse {
      */
     @Data
     public static class UserInfo {
-        private Long id;
+        private Long userId;
         private String username;
         private String nickname;
         private String avatar;

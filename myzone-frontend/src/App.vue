@@ -19,9 +19,9 @@ body {
 
 /* Element Plus 样式覆盖 */
 .el-button--danger {
-  --el-button-bg-color: #ff0050;
-  --el-button-border-color: #ff0050;
-  --el-button-hover-bg-color: #d10042;
-  --el-button-hover-border-color: #d10042;
+  --el-button-bg-color: #e9ebec;
+  --el-button-border-color: #e9ebec;
+  --el-button-hover-bg-color: #e9ebec;
+  --el-button-hover-border-color: #e9ebec;
 }
 </style>

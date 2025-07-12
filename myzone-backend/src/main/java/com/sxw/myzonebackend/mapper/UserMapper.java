@@ -23,7 +23,7 @@ public interface UserMapper {
     /**
      * 根据ID查询用户
      */
-    User findById(@Param("id") Long id);
+    User findById(@Param("userId") Long userId);
     
     /**
      * 插入用户
@@ -38,10 +38,10 @@ public interface UserMapper {
     /**
      * 根据ID删除用户
      */
-    int deleteById(@Param("id") Long id);
+    int deleteById(@Param("userId") Long userId);
     
     /**
      * 更新用户密码
      */
-    int updatePassword(@Param("id") Long id, @Param("password") String password);
+    int updatePassword(@Param("userId") Long userId, @Param("password") String password);
 } 

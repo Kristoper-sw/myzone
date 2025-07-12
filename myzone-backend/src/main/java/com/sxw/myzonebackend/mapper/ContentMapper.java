@@ -113,7 +113,7 @@ public interface ContentMapper {
         @Result(property = "commentCount", column = "comment_count"),
         @Result(property = "createTime", column = "create_time"),
         @Result(property = "updateTime", column = "update_time"),
-        @Result(property = "user.id", column = "user_id"),
+        @Result(property = "user.userId", column = "user_id"),
         @Result(property = "user.username", column = "username"),
         @Result(property = "user.nickname", column = "nickname"),
         @Result(property = "user.avatar", column = "avatar")
@@ -145,7 +145,7 @@ public interface ContentMapper {
         @Result(property = "commentCount", column = "comment_count"),
         @Result(property = "createTime", column = "create_time"),
         @Result(property = "updateTime", column = "update_time"),
-        @Result(property = "user.id", column = "user_id"),
+        @Result(property = "user.userId", column = "user_id"),
         @Result(property = "user.username", column = "username"),
         @Result(property = "user.nickname", column = "nickname"),
         @Result(property = "user.avatar", column = "avatar")

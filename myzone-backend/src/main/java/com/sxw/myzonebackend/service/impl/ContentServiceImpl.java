@@ -163,13 +163,13 @@ public class ContentServiceImpl implements ContentService {
             // 设置用户信息
             MapContentResponse.UserInfo userInfo = new MapContentResponse.UserInfo();
             if (content.getUser() != null) {
-                userInfo.setId(content.getUser().getId());
+                userInfo.setUserId(content.getUser().getUserId());
                 userInfo.setUsername(content.getUser().getUsername());
                 userInfo.setNickname(content.getUser().getNickname());
                 userInfo.setAvatar(content.getUser().getAvatar());
             } else {
                 // 如果没有关联用户信息，使用默认值
-                userInfo.setId(content.getUserId());
+                userInfo.setUserId(content.getUserId());
                 userInfo.setUsername("user" + content.getUserId());
                 userInfo.setNickname("用户" + content.getUserId());
                 userInfo.setAvatar("https://placehold.co/40x40?text=U" + content.getUserId());

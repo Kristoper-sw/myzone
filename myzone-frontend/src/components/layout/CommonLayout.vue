@@ -239,7 +239,7 @@ const handleCommand = async (command) => {
 }
 
 .user-avatar:hover {
-  border-color: #ff0050;
+  border-color: #ffffff;
 }
 
 .main {

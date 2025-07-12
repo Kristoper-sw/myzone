@@ -92,6 +92,7 @@ watch(
   () => currentUser.value,
   (user) => {
     if (user) {
+      console.log(user)
       infoForm.username = user.username || ''
       infoForm.nickname = user.nickname || ''
       infoForm.email = user.email || ''

@@ -61,13 +61,13 @@ const login = async (credentials) => {
     const response = await authAPI.login(credentials)
     if (response.code === 200) {
       setToken(response.data.token)
-      setUserInfo({
-        userId: response.data.userId,
-        username: response.data.username,
-        nickname: response.data.nickname,
-        email: response.data.email,
-        avatar: response.data.avatar
-      })
+      // 登录后立即获取完整用户信息
+      const infoRes = await userAPI.getUserInfo()
+      if (infoRes.code === 200) {
+        setUserInfo(infoRes.data)
+      } else {
+        setUserInfo(null)
+      }
       return { success: true, data: response.data }
     } else {
       return { success: false, message: response.message }

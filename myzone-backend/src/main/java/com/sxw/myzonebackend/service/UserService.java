@@ -89,11 +89,11 @@ public class UserService {
         }
 
         // 生成JWT令牌
-        String token = jwtUtil.generateToken(user.getUsername(), user.getId());
+        String token = jwtUtil.generateToken(user.getUsername(), user.getUserId());
 
         // 构建登录响应
         LoginResponse response = new LoginResponse();
-        response.setUserId(user.getId());
+        response.setUserId(user.getUserId());
         response.setUsername(user.getUsername());
         response.setNickname(user.getNickname());
         response.setEmail(user.getEmail());
@@ -125,7 +125,7 @@ public class UserService {
      */
     @Transactional
     public void updateUser(User user) {
-        if (user.getId() == null) {
+        if (user.getUserId() == null) {
             throw new RuntimeException("用户ID不能为空");
         }
         
@@ -200,13 +200,13 @@ public class UserService {
         // 检查邮箱是否被其他用户使用
         if (org.springframework.util.StringUtils.hasText(request.getEmail()) && !request.getEmail().equals(currentUser.getEmail())) {
             User existingUser = userMapper.findByEmail(request.getEmail());
-            if (existingUser != null && !existingUser.getId().equals(userId)) {
+            if (existingUser != null && !existingUser.getUserId().equals(userId)) {
                 throw new RuntimeException("邮箱已被其他用户使用");
             }
         }
         // 更新用户基本信息
         User updateUser = new User();
-        updateUser.setId(userId);
+        updateUser.setUserId(userId);
         if (org.springframework.util.StringUtils.hasText(request.getNickname())) {
             if (request.getNickname().length() < 2 || request.getNickname().length() > 20) {
                 throw new RuntimeException("昵称长度必须在2-20个字符之间");

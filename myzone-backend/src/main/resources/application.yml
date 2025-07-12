@@ -28,7 +28,7 @@ spring:
       # 验证超时时间（毫秒）
       validation-timeout: 5000
       # 泄漏检测阈值（毫秒）
-      leak-detection-threshold: 60000
+      leak-detection-threshold: 0
   # 事务管理配置
   transaction:
     default-timeout: 30s

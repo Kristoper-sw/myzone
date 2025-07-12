@@ -79,7 +79,6 @@ public class UserController {
             if (user == null) {
                 return Result.error("用户不存在");
             }
-
             return Result.success(user);
         } catch (Exception e) {
             return Result.error("获取用户信息失败: " + e.getMessage());
