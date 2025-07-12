@@ -1,17 +1,23 @@
 <template>
   <div class="upload-view">
-    <ContentUpload ref="contentUpload" @upload-success="handleUploadSuccess" />
-    
-    <!-- 上传成功提示 -->
-    <SuccessMessage
-      :visible="showSuccessMessage"
-      title="上传成功！"
-      message="你的内容已经成功发布，快去查看吧！"
-      primary-action-text="查看我的内容"
-      secondary-action-text="继续上传"
-      @primary-action="goToProfile"
-      @secondary-action="continueUpload"
-    />
+    <el-card class="upload-card-page" shadow="hover">
+      <template #header>
+        <h2>上传内容</h2>
+        <p class="subtitle">分享你的精彩时刻，支持短视频、图片或混合上传</p>
+      </template>
+      <ContentUpload ref="contentUpload" @upload-success="handleUploadSuccess" />
+      <el-divider />
+      <!-- 上传成功提示 -->
+      <SuccessMessage
+        :visible="showSuccessMessage"
+        title="上传成功！"
+        message="你的内容已经成功发布，快去查看吧！"
+        primary-action-text="查看我的内容"
+        secondary-action-text="继续上传"
+        @primary-action="goToProfile"
+        @secondary-action="continueUpload"
+      />
+    </el-card>
   </div>
 </template>
 
@@ -48,18 +54,44 @@ const continueUpload = () => {
 
 <style scoped>
 .upload-view {
-  flex: 1;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-width: 1200px;
+  margin: 0 auto;
   padding: 20px;
-  display: flex;
-  flex-direction: column;
-  min-height: calc(100vh - 56px); /* 减去导航栏的高度 */
+}
+
+.upload-card-page {
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(55, 59, 68, 0.12);
+  border: none;
+}
+
+.upload-card-page :deep(.el-card__header) {
+  background: linear-gradient(to right, rgb(55, 59, 68), rgb(66, 134, 244));
+  color: white;
+  border-radius: 16px 16px 0 0;
+  padding: 24px 20px;
+}
+
+.upload-card-page h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.upload-card-page .subtitle {
+  margin-top: 8px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.8);
 }
 
 @media (max-width: 768px) {
   .upload-view {
+    min-width: auto;
     padding: 10px;
-    min-height: calc(100vh - 56px); /* 确保在移动端也减去导航栏高度 */
+  }
+  .upload-card-page {
+    margin-bottom: 100px;
   }
 }
-</style> 
+</style>

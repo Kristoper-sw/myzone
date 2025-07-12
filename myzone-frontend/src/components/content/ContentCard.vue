@@ -148,20 +148,22 @@ const formatTime = (time) => {
 <style scoped>
 .content-card {
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 20px rgba(55, 59, 68, 0.08);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(66, 134, 244, 0.1);
 }
 
 .content-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 40px rgba(55, 59, 68, 0.15);
+  border-color: rgba(66, 134, 244, 0.3);
 }
 
 .content-preview {
   height: 200px;
-  background: #f5f5f5;
+  background: linear-gradient(135deg, rgba(66, 134, 244, 0.1), rgba(55, 59, 68, 0.1));
   position: relative;
   overflow: hidden;
 }
@@ -170,6 +172,11 @@ const formatTime = (time) => {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.content-card:hover .preview-media {
+  transform: scale(1.05);
 }
 
 .no-media {
@@ -178,12 +185,14 @@ const formatTime = (time) => {
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #999;
+  color: rgb(55, 59, 68);
+  background: linear-gradient(135deg, rgba(66, 134, 244, 0.05), rgba(55, 59, 68, 0.05));
 }
 
 .no-media p {
   margin-top: 10px;
   font-size: 14px;
+  color: rgb(66, 134, 244);
 }
 
 .content-info {
@@ -194,6 +203,13 @@ const formatTime = (time) => {
   display: flex;
   gap: 10px;
   margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.content-header .el-tag {
+  border-radius: 6px;
+  font-weight: 600;
+  border: none;
 }
 
 .content-diary {
@@ -201,7 +217,7 @@ const formatTime = (time) => {
 }
 
 .content-diary p {
-  color: #333;
+  color: rgb(55, 59, 68);
   line-height: 1.6;
   margin: 0;
   display: -webkit-box;
@@ -214,21 +230,23 @@ const formatTime = (time) => {
   display: flex;
   align-items: center;
   gap: 5px;
-  color: #666;
+  color: rgb(66, 134, 244);
   font-size: 14px;
   margin-bottom: 15px;
+  font-weight: 500;
 }
 
 .content-stats {
   display: flex;
   gap: 15px;
-  color: #666;
+  color: rgb(55, 59, 68);
   font-size: 14px;
   margin-bottom: 10px;
+  font-weight: 500;
 }
 
 .content-time {
-  color: #999;
+  color: rgba(55, 59, 68, 0.6);
   font-size: 12px;
 }
 
@@ -236,5 +254,43 @@ const formatTime = (time) => {
   padding: 0 20px 20px;
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
+}
+
+.content-actions .el-button {
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.content-actions .el-button--primary {
+  background: linear-gradient(to right, rgb(55, 59, 68), rgb(66, 134, 244));
+  border: none;
+}
+
+.content-actions .el-button--primary:hover {
+  box-shadow: 0 4px 12px rgba(66, 134, 244, 0.3);
+  transform: translateY(-1px);
+}
+
+.content-actions .el-button--danger {
+  background: linear-gradient(to right, #ff6b6b, #ee5a52);
+  border: none;
+}
+
+.content-actions .el-button--danger:hover {
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+  transform: translateY(-1px);
+}
+
+.content-actions .el-button--default {
+  border-color: rgb(66, 134, 244);
+  color: rgb(66, 134, 244);
+}
+
+.content-actions .el-button--default:hover {
+  background: rgba(66, 134, 244, 0.1);
+  border-color: rgb(55, 59, 68);
+  color: rgb(55, 59, 68);
 }
 </style> 

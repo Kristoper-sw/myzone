@@ -161,42 +161,70 @@ public class UserService {
             throw new RuntimeException("用户不存在");
         }
 
-        // 验证当前密码
-        if (!passwordEncoder.matches(request.getCurrentPassword(), currentUser.getPassword())) {
-            throw new RuntimeException("当前密码错误");
-        }
+        boolean isPasswordChange =
+            org.springframework.util.StringUtils.hasText(request.getCurrentPassword()) ||
+            org.springframework.util.StringUtils.hasText(request.getNewPassword()) ||
+            org.springframework.util.StringUtils.hasText(request.getConfirmPassword());
 
-        // 检查邮箱是否被其他用户使用
-        if (StringUtils.hasText(request.getEmail()) && !request.getEmail().equals(currentUser.getEmail())) {
-            User existingUser = userMapper.findByEmail(request.getEmail());
-            if (existingUser != null && !existingUser.getId().equals(userId)) {
-                throw new RuntimeException("邮箱已被其他用户使用");
+        if (isPasswordChange) {
+            // 密码修改逻辑
+            if (!org.springframework.util.StringUtils.hasText(request.getCurrentPassword())) {
+                throw new RuntimeException("当前密码不能为空");
             }
-        }
-
-        // 更新用户基本信息
-        User updateUser = new User();
-        updateUser.setId(userId);
-        updateUser.setNickname(request.getNickname());
-        updateUser.setEmail(request.getEmail());
-        updateUser.setAvatar(request.getAvatar());
-
-        int result = userMapper.update(updateUser);
-        if (result != 1) {
-            throw new RuntimeException("用户信息更新失败");
-        }
-
-        // 如果提供了新密码，则更新密码
-        if (StringUtils.hasText(request.getNewPassword())) {
+            if (!org.springframework.util.StringUtils.hasText(request.getNewPassword())) {
+                throw new RuntimeException("新密码不能为空");
+            }
+            if (!org.springframework.util.StringUtils.hasText(request.getConfirmPassword())) {
+                throw new RuntimeException("请再次输入新密码");
+            }
             if (!request.getNewPassword().equals(request.getConfirmPassword())) {
                 throw new RuntimeException("新密码与确认密码不一致");
             }
-            
+            if (request.getNewPassword().length() < 6 || request.getNewPassword().length() > 20) {
+                throw new RuntimeException("新密码长度必须在6-20个字符之间");
+            }
+            // 校验当前密码
+            if (!passwordEncoder.matches(request.getCurrentPassword(), currentUser.getPassword())) {
+                throw new RuntimeException("当前密码错误");
+            }
+            // 更新密码
             String encodedPassword = passwordEncoder.encode(request.getNewPassword());
             int passwordResult = userMapper.updatePassword(userId, encodedPassword);
             if (passwordResult != 1) {
                 throw new RuntimeException("密码更新失败");
             }
+            return;
+        }
+
+        // 基本信息修改逻辑
+        // 检查邮箱是否被其他用户使用
+        if (org.springframework.util.StringUtils.hasText(request.getEmail()) && !request.getEmail().equals(currentUser.getEmail())) {
+            User existingUser = userMapper.findByEmail(request.getEmail());
+            if (existingUser != null && !existingUser.getId().equals(userId)) {
+                throw new RuntimeException("邮箱已被其他用户使用");
+            }
+        }
+        // 更新用户基本信息
+        User updateUser = new User();
+        updateUser.setId(userId);
+        if (org.springframework.util.StringUtils.hasText(request.getNickname())) {
+            if (request.getNickname().length() < 2 || request.getNickname().length() > 20) {
+                throw new RuntimeException("昵称长度必须在2-20个字符之间");
+            }
+            updateUser.setNickname(request.getNickname());
+        }
+        if (org.springframework.util.StringUtils.hasText(request.getEmail())) {
+            updateUser.setEmail(request.getEmail());
+        }
+        if (org.springframework.util.StringUtils.hasText(request.getAvatar())) {
+            updateUser.setAvatar(request.getAvatar());
+        }
+        if (org.springframework.util.StringUtils.hasText(request.getPhone())) {
+            updateUser.setPhone(request.getPhone());
+        }
+        int result = userMapper.update(updateUser);
+        if (result != 1) {
+            throw new RuntimeException("用户信息更新失败");
         }
     }
 

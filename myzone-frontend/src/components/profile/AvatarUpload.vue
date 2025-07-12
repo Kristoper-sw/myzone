@@ -81,7 +81,15 @@ const removeAvatar = () => {
 }
 
 .avatar-preview {
-  border: 2px solid #e4e7ed;
+  border: 3px solid rgba(66, 134, 244, 0.3);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(55, 59, 68, 0.1);
+}
+
+.avatar-preview:hover {
+  border-color: rgb(66, 134, 244);
+  box-shadow: 0 6px 20px rgba(66, 134, 244, 0.2);
+  transform: scale(1.02);
 }
 
 .avatar-actions {
@@ -92,6 +100,30 @@ const removeAvatar = () => {
 
 .avatar-actions .el-button {
   width: 100px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.avatar-actions .el-button--primary {
+  background: linear-gradient(to right, rgb(55, 59, 68), rgb(66, 134, 244));
+  border: none;
+}
+
+.avatar-actions .el-button--primary:hover {
+  box-shadow: 0 4px 12px rgba(66, 134, 244, 0.3);
+  transform: translateY(-1px);
+}
+
+.avatar-actions .el-button--default {
+  border-color: rgb(66, 134, 244);
+  color: rgb(66, 134, 244);
+}
+
+.avatar-actions .el-button--default:hover {
+  background: rgba(66, 134, 244, 0.1);
+  border-color: rgb(55, 59, 68);
+  color: rgb(55, 59, 68);
 }
 
 @media (max-width: 768px) {

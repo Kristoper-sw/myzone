@@ -1,26 +1,22 @@
 <template>
-  <CommonLayout>
-    <div class="upload-content">
-      <el-card class="upload-header">
-        <template #header>
-          <h2>上传内容</h2>
-        </template>
-        <p>分享你的精彩时刻，上传图片和视频内容</p>
-      </el-card>
-      
+  <div class="upload-content">
+    <el-card class="upload-header">
+      <template #header>
+        <h2>上传内容</h2>
+      </template>
+      <p>分享你的精彩时刻，上传图片和视频内容</p>
       <ContentUpload />
-    </div>
-  </CommonLayout>
+    </el-card>
+  </div>
 </template>
 
 <script setup>
-import CommonLayout from '@/components/layout/CommonLayout.vue'
 import ContentUpload from '@/components/ContentUpload.vue'
 </script>
 
 <style scoped>
 .upload-content {
-  max-width: 800px;
+  min-width: 1200px;
   margin: 0 auto;
 }
 
@@ -29,19 +25,21 @@ import ContentUpload from '@/components/ContentUpload.vue'
 }
 
 .upload-header :deep(.el-card__header) {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-radius: 8px 8px 0 0;
+  background: linear-gradient(to right, rgb(55, 59, 68), rgb(66, 134, 244));
+  color: #fff;
+  border-radius: 12px 12px 0 0;
 }
 
 .upload-header h2 {
+  font-size: 28px;
+  font-weight: bold;
+  color: #fff;
   margin: 0;
-  font-size: 24px;
-  font-weight: 600;
+  letter-spacing: 2px;
 }
 
 .upload-header p {
   margin: 10px 0 0 0;
   color: #666;
 }
-</style> 
+</style>

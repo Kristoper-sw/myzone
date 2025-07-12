@@ -1,28 +1,18 @@
 <template>
-  <CommonLayout>
-    <div class="home-map-fullscreen">
-      <MapComponent />
-    </div>
-  </CommonLayout>
+  <div class="home-map-fullscreen">
+    <MapComponent />
+  </div>
 </template>
 
 <script setup>
-import CommonLayout from '@/components/layout/CommonLayout.vue'
 import MapComponent from '@/components/MapComponent.vue'
 </script>
 
 <style scoped>
 .home-map-fullscreen {
   width: 100%;
-  height: 50%;
-  min-width: 0;
-  /* overflow: hidden;
-  display: flex;
-  align-items: stretch;
-  justify-content: stretch; */
+  flex: 1 1 auto;
+  height: 100%;
+  position: relative;
 }
-
-/* .home-map-fullscreen > * {
-  flex: 1 1 100%;
-} */
-</style> 
+</style>

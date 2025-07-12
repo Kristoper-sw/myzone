@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { userStore } from '@/stores/user'
+import CommonLayout from '@/components/layout/CommonLayout.vue'
 import HomeView from '../views/HomeView.vue'
 import MosaicView from '../views/MosaicView.vue'
 import PostDetailView from '../views/PostDetailView.vue'
@@ -10,54 +11,61 @@ import UploadView from '../views/UploadView.vue'
 import MyContentsView from '../views/MyContentsView.vue'
 
 const routes = [
-  { 
-    path: '/', 
-    name: 'Home', 
-    component: HomeView,
-    meta: { requiresAuth: false }
-  },
-  { 
-    path: '/mosaic', 
-    name: 'Mosaic', 
-    component: MosaicView,
-    meta: { requiresAuth: true }
-  },
-  { 
-    path: '/post/:id', 
-    name: 'PostDetail', 
-    component: PostDetailView,
-    meta: { requiresAuth: true }
-  },
-  { 
-    path: '/login', 
-    name: 'Login', 
-    component: LoginView,
-    meta: { requiresGuest: true }
-  },
-  { 
-    path: '/register', 
-    name: 'Register', 
-    component: RegisterView,
-    meta: { requiresGuest: true }
-  },
-  { 
-    path: '/profile', 
-    name: 'Profile', 
-    component: ProfileView,
-    meta: { requiresAuth: true }
-  },
-  { 
-    path: '/upload', 
-    name: 'Upload', 
-    component: UploadView,
-    meta: { requiresAuth: true }
-  },
-  { 
-    path: '/my-contents', 
-    name: 'MyContents', 
-    component: MyContentsView,
-    meta: { requiresAuth: true }
+  {
+    path: '/',
+    component: CommonLayout,
+    children: [
+      {
+        path: '',
+        name: 'Home',
+        component: HomeView,
+        meta: { requiresAuth: false }
+      },
+      {
+        path: 'mosaic',
+        name: 'Mosaic',
+        component: MosaicView,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'post/:id',
+        name: 'PostDetail',
+        component: PostDetailView,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: ProfileView,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'upload',
+        name: 'Upload',
+        component: UploadView,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'my-contents',
+        name: 'MyContents',
+        component: MyContentsView,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: '/login',
+        name: 'Login',
+        component: LoginView,
+        meta: { requiresGuest: true }
+      },
+      {
+        path: '/register',
+        name: 'Register',
+        component: RegisterView,
+        meta: { requiresGuest: true }
+      }
+    ]
   }
+  
 ]
 
 const router = createRouter({
@@ -94,4 +102,4 @@ router.beforeEach((to, from, next) => {
   next()
 })
 
-export default router 
+export default router

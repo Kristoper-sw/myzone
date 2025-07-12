@@ -1,0 +1,177 @@
+/* 全局样式变量 */
+:root {
+  --primary-gradient: linear-gradient(to right, rgb(55, 59, 68), rgb(66, 134, 244));
+  --primary-color: rgb(66, 134, 244);
+  --secondary-color: rgb(55, 59, 68);
+  --danger-gradient: linear-gradient(to right, #ff6b6b, #ee5a52);
+  --success-color: #67C23A;
+  --warning-color: #E6A23C;
+  --info-color: #909399;
+  
+  --border-radius-sm: 6px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+  
+  --shadow-sm: 0 2px 8px rgba(55, 59, 68, 0.08);
+  --shadow-md: 0 4px 20px rgba(55, 59, 68, 0.12);
+  --shadow-lg: 0 8px 32px rgba(55, 59, 68, 0.15);
+  --shadow-xl: 0 16px 48px rgba(55, 59, 68, 0.2);
+  
+  --transition: all 0.3s ease;
+}
+
+/* 全局按钮样式 */
+.el-button--primary {
+  background: var(--primary-gradient) !important;
+  border: none !important;
+  border-radius: var(--border-radius-md) !important;
+  font-weight: 600 !important;
+  transition: var(--transition) !important;
+}
+
+.el-button--primary:hover {
+  box-shadow: 0 4px 12px rgba(66, 134, 244, 0.3) !important;
+  transform: translateY(-1px) !important;
+}
+
+.el-button--danger {
+  background: var(--danger-gradient) !important;
+  border: none !important;
+  border-radius: var(--border-radius-md) !important;
+  font-weight: 600 !important;
+  transition: var(--transition) !important;
+}
+
+.el-button--danger:hover {
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 全局输入框样式 */
+.el-input__wrapper {
+  border-radius: var(--border-radius-md) !important;
+  border-color: var(--primary-color) !important;
+  transition: var(--transition) !important;
+}
+
+.el-input__wrapper:hover {
+  border-color: var(--secondary-color) !important;
+  box-shadow: 0 0 0 2px rgba(66, 134, 244, 0.1) !important;
+}
+
+.el-input__wrapper.is-focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 2px rgba(66, 134, 244, 0.2) !important;
+}
+
+/* 全局卡片样式 */
+.el-card {
+  border-radius: var(--border-radius-xl) !important;
+  box-shadow: var(--shadow-md) !important;
+  border: 1px solid rgba(66, 134, 244, 0.1) !important;
+  transition: var(--transition) !important;
+}
+
+.el-card:hover {
+  box-shadow: var(--shadow-lg) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* 全局标签样式 */
+.el-tag {
+  border-radius: var(--border-radius-sm) !important;
+  font-weight: 600 !important;
+  border: none !important;
+}
+
+/* 全局选择器样式 */
+.el-select .el-input__wrapper {
+  border-radius: var(--border-radius-md) !important;
+  border-color: var(--primary-color) !important;
+}
+
+.el-select .el-input__wrapper:hover {
+  border-color: var(--secondary-color) !important;
+  box-shadow: 0 0 0 2px rgba(66, 134, 244, 0.1) !important;
+}
+
+.el-select .el-input__wrapper.is-focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 2px rgba(66, 134, 244, 0.2) !important;
+}
+
+/* 全局进度条样式 */
+.el-progress-bar__outer {
+  border-radius: var(--border-radius-sm) !important;
+}
+
+.el-progress-bar__inner {
+  background: var(--primary-gradient) !important;
+  border-radius: var(--border-radius-sm) !important;
+}
+
+/* 全局消息样式 */
+.el-message {
+  border-radius: var(--border-radius-md) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* 全局对话框样式 */
+.el-dialog {
+  border-radius: var(--border-radius-xl) !important;
+  box-shadow: var(--shadow-xl) !important;
+}
+
+.el-dialog__header {
+  background: var(--primary-gradient) !important;
+  color: white !important;
+  border-radius: var(--border-radius-xl) var(--border-radius-xl) 0 0 !important;
+}
+
+/* 全局下拉菜单样式 */
+.el-dropdown-menu {
+  border-radius: var(--border-radius-md) !important;
+  box-shadow: var(--shadow-md) !important;
+  border: 1px solid rgba(66, 134, 244, 0.1) !important;
+}
+
+/* 全局空状态样式 */
+.el-empty {
+  background: white !important;
+  border-radius: var(--border-radius-lg) !important;
+  box-shadow: var(--shadow-sm) !important;
+  padding: 40px !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .el-card {
+    margin: 10px !important;
+  }
+  
+  .el-button {
+    font-size: 14px !important;
+    padding: 8px 16px !important;
+  }
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(66, 134, 244, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-gradient);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-color);
+} 

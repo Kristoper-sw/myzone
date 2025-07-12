@@ -9,14 +9,14 @@ import jakarta.validation.constraints.Size;
  */
 public class UpdateUserRequest {
     
-    @NotBlank(message = "昵称不能为空")
-    @Size(min = 2, max = 20, message = "昵称长度必须在2-20个字符之间")
     private String nickname;
     
     @Email(message = "邮箱格式不正确")
     private String email;
     
     private String avatar;
+    
+    private String phone;
     
     @Size(min = 6, max = 20, message = "密码长度必须在6-20个字符之间")
     private String newPassword;
@@ -50,6 +50,13 @@ public class UpdateUserRequest {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getNewPassword() {

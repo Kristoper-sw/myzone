@@ -4,20 +4,21 @@
       <el-header class="header">
         <div class="header-content">
           <div class="header-left">
-            <div class="logo" @click="$router.push('/')">KrisZone</div>
+            <div class="logo" @click="$router.push('/')">MyZone</div>
             <el-menu
               :default-active="activeIndex"
               mode="horizontal"
               background-color="transparent"
-              text-color="#fff"
-              active-text-color="#ffd04b"
+              text-color="#FFFFFF"
+              active-text-color="#CCCCFF"
               @select="handleSelect"
               class="nav-menu"
+              :ellipsis="false"
             >
               <el-menu-item index="/">首页</el-menu-item>
-              <el-menu-item index="/mosaic">拼图</el-menu-item>
+              <!-- <el-menu-item index="/mosaic">拼图</el-menu-item> -->
               <el-menu-item index="/upload">上传内容</el-menu-item>
-              <el-menu-item index="/my-contents">我的内容</el-menu-item>
+              <!-- <el-menu-item index="/my-contents">我的内容</el-menu-item> -->
             </el-menu>
           </div>
           <div class="header-right">
@@ -37,9 +38,9 @@
                     <el-dropdown-item command="my-contents">
                       <el-icon><Document /></el-icon>我的内容
                     </el-dropdown-item>
-                    <el-dropdown-item command="upload">
+                    <!-- <el-dropdown-item command="upload">
                       <el-icon><Upload /></el-icon>上传内容
-                    </el-dropdown-item>
+                    </el-dropdown-item> -->
                     <el-dropdown-item divided command="logout">
                       <el-icon><SwitchButton /></el-icon>退出登录
                     </el-dropdown-item>
@@ -55,7 +56,7 @@
         </div>
       </el-header>
       <el-main class="main">
-        <slot></slot>
+        <router-view></router-view>
       </el-main>
     </el-container>
   </div>
@@ -66,7 +67,7 @@ import { computed } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import { User, Document, Upload, SwitchButton } from '@element-plus/icons-vue'
+import { User, Document, SwitchButton } from '@element-plus/icons-vue'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -129,15 +130,15 @@ const handleCommand = async (command) => {
 <style scoped>
 .common-layout {
   min-height: 100vh;
-  background: #f5f6fa;
+  background: linear-gradient(135deg, rgba(66, 134, 244, 0.02), rgba(55, 59, 68, 0.02));
 }
 
 .header {
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(to right, rgb(55, 59, 68), rgb(66, 134, 244));
   color: white;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 20px rgba(55, 59, 68, 0.15);
   padding: 0;
-  height: 64px;
+  height: 50px;
   display: flex;
   align-items: center;
 }
@@ -153,27 +154,60 @@ const handleCommand = async (command) => {
 .header-left {
   display: flex;
   align-items: center;
-  gap: 30px;
+  flex: 1;
+  min-width: 0;
 }
 
 .logo {
+  background: linear-gradient(270deg, #ff4ecf, #66ccff, #4effd7, #fffb4e, #ff4ecf);
+  background-size: 1000% 1000%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbow 6s ease infinite;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
   font-size: 22px;
   font-weight: bold;
-  color: #fff;
-  cursor: pointer;
-  margin-right: 30px;
+  margin-right: 10px;
+  margin-left: 30px;
   letter-spacing: 2px;
+}
+
+@keyframes rainbow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+
+.logo:hover {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
 .nav-menu {
   background: transparent;
-  border-bottom: none;
+  border:0!important;
+  height: 50px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  margin-left: 10px;
+}
+
+.el-menu--horizontal > .el-sub-menu.is-overflow {
+  display: none !important;
 }
 
 .header-right {
   display: flex;
   align-items: center;
   gap: 16px;
+  margin-right: 10px;
 }
 
 .user-info {
@@ -182,6 +216,12 @@ const handleCommand = async (command) => {
   gap: 10px;
   cursor: pointer;
   color: white;
+  margin-right: 10px;
+  transition: all 0.3s ease;
+}
+
+.user-info:hover {
+  opacity: 0.8;
 }
 
 .username {
@@ -203,9 +243,11 @@ const handleCommand = async (command) => {
 }
 
 .main {
-  background: #fff;
-  padding: 30px 0 0 0;
-  min-height: calc(100vh - 64px);
+  background: transparent;
+  padding: 0 0 0 0;
+  min-height: calc(100vh - 50px);
+  display: flex;
+  flex-direction: column;
 }
 
 @media (max-width: 768px) {

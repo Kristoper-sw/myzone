@@ -86,12 +86,58 @@ const handleStatusChange = () => {
   gap: 15px;
   margin-bottom: 30px;
   align-items: center;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(55, 59, 68, 0.08);
+  padding: 20px;
+  border: 1px solid rgba(66, 134, 244, 0.1);
+}
+
+/* 美化选择器 */
+:deep(.el-select) {
+  min-width: 120px;
+}
+
+:deep(.el-select .el-input__wrapper) {
+  border-radius: 8px;
+  border-color: rgb(66, 134, 244);
+  transition: all 0.3s ease;
+}
+
+:deep(.el-select .el-input__wrapper:hover) {
+  border-color: rgb(55, 59, 68);
+  box-shadow: 0 0 0 2px rgba(66, 134, 244, 0.1);
+}
+
+:deep(.el-select .el-input__wrapper.is-focus) {
+  border-color: rgb(66, 134, 244);
+  box-shadow: 0 0 0 2px rgba(66, 134, 244, 0.2);
+}
+
+/* 美化按钮 */
+:deep(.el-button--primary) {
+  background: linear-gradient(to right, rgb(55, 59, 68), rgb(66, 134, 244));
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  padding: 12px 20px;
+}
+
+:deep(.el-button--primary:hover) {
+  box-shadow: 0 4px 12px rgba(66, 134, 244, 0.3);
+  transform: translateY(-1px);
 }
 
 @media (max-width: 768px) {
   .filter-section {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
+  }
+  
+  :deep(.el-select) {
+    min-width: auto;
   }
 }
 </style> 

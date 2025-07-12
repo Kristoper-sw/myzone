@@ -1,159 +1,127 @@
 <template>
-    <div class="content-upload">
-    <el-card class="upload-card" shadow="hover">
-      <template #header>
-        <div class="card-header">
-          <h2 class="upload-title">分享你的精彩时刻</h2>
-        </div>
-      </template>
-
-      <!-- 内容类型选择 -->
-      <div class="content-type-selector">
-        <el-form-item label="选择内容类型：">
-          <el-radio-group v-model="contentType" @change="handleTypeChange">
-            <el-radio :label="1">短视频</el-radio>
-            <el-radio :label="2">图片</el-radio>
-            <el-radio :label="3">混合</el-radio>
-          </el-radio-group>
-        </el-form-item>
+  <div class="content-upload">
+    <!-- 内容类型选择 -->
+    <el-form-item label="选择内容类型：" class="form-item">
+      <el-radio-group v-model="contentType" @change="handleTypeChange">
+        <el-radio :label="1">短视频</el-radio>
+        <el-radio :label="2">图片</el-radio>
+        <el-radio :label="3">混合</el-radio>
+      </el-radio-group>
+    </el-form-item>
+    <!-- 位置信息 -->
+    <el-form-item label="位置信息" class="form-item">
+      <div class="location-section">
+        <el-input v-model="location" placeholder="点击获取当前位置" readonly class="location-input" />
+        <el-button type="primary" @click="getCurrentLocation" :icon="Location"></el-button>
       </div>
-
-      <!-- 位置信息 -->
-      <el-form-item label="位置信息">
-        <div class="location-section">
-          <el-input
-            v-model="location"
-            placeholder="点击获取当前位置"
-            readonly
-            class="location-input"
-          >
-          </el-input>
-          <el-button type="primary" @click="getCurrentLocation" :icon="Location"></el-button>
-        </div>
-        <el-alert
-          v-if="locationError"
-          :title="locationError"
-          type="error"
-          show-icon
-          :closable="false"
-        />
-      </el-form-item>
-
-      <!-- 视频上传区域 -->
-      <div v-if="showVideoUpload">
-        <el-form-item label="上传视频">
-          <el-upload
-            ref="videoUpload"
-            :auto-upload="false"
-            :show-file-list="false"
-            accept="video/*"
-            :on-change="handleVideoSelect"
-            :on-remove="removeVideo"
-            drag
-            class="upload-area"
-          >
-            <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-            <div class="el-upload__text">
-              将视频文件拖到此处，或<em>点击上传</em>
-            </div>
-            <template #tip>
-              <div class="el-upload__tip">
-                支持 MP4, AVI, MOV 等格式，最大 100MB
-              </div>
-            </template>
-          </el-upload>
-          
-          <!-- 视频预览 -->
-          <div v-if="selectedVideo" class="video-preview">
-            <video :src="videoPreviewUrl" controls class="preview-video"></video>
-            <div class="file-info">
-              <p>{{ selectedVideo.name }}</p>
-              <p>{{ formatFileSize(selectedVideo.size) }}</p>
-            </div>
-            <el-button @click="removeVideo" type="danger" size="small" :icon="Delete">
-              删除视频
-            </el-button>
+      <el-alert v-if="locationError" :title="locationError" type="error" show-icon :closable="false" />
+    </el-form-item>
+    <!-- 视频上传区域 -->
+    <div v-if="showVideoUpload">
+      <el-form-item label="上传视频" class="form-item">
+        <el-upload
+          ref="videoUpload"
+          :auto-upload="false"
+          :show-file-list="false"
+          accept="video/*"
+          :on-change="handleVideoSelect"
+          :on-remove="removeVideo"
+          drag
+          class="upload-area"
+        >
+          <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+          <div class="el-upload__text">
+            将视频文件拖到此处，或<em>点击上传</em>
           </div>
-        </el-form-item>
-      </div>
-
-      <!-- 图片上传区域 -->
-      <div v-if="showImageUpload">
-        <el-form-item label="上传图片">
-          <el-upload
-            ref="imageUpload"
-            :auto-upload="false"
-            :show-file-list="false"
-            accept="image/*"
-            multiple
-            :on-change="handleImageSelect"
-            :on-remove="removeImage"
-            drag
-            class="upload-area"
-          >
-            <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-            <div class="el-upload__text">
-              将图片文件拖到此处，或<em>点击上传</em>
+          <template #tip>
+            <div class="el-upload__tip">
+              支持 MP4, AVI, MOV 等格式，最大 100MB
             </div>
-            <template #tip>
-              <div class="el-upload__tip">
-                支持 JPG, PNG, GIF 等格式，可多选
-              </div>
-            </template>
-          </el-upload>
-          
-          <!-- 图片预览 -->
-          <div v-if="selectedImages.length > 0" class="images-preview">
-            <div v-for="(image, index) in selectedImages" :key="index" class="image-item">
-              <el-image 
-                :src="image.preview" 
-                :alt="image.name" 
-                class="preview-image"
-                fit="cover"
-              />
-              <div class="image-info">
-                <p>{{ image.name }}</p>
-                <p>{{ formatFileSize(image.size) }}</p>
-              </div>
-              <el-button 
-                @click="removeImage(index)" 
-                type="danger" 
-                size="small" 
-                :icon="Delete"
-                circle
-              />
-            </div>
+          </template>
+        </el-upload>
+        <!-- 视频预览 -->
+        <div v-if="selectedVideo" class="video-preview">
+          <video :src="videoPreviewUrl" controls class="preview-video"></video>
+          <div class="file-info">
+            <p>{{ selectedVideo.name }}</p>
+            <p>{{ formatFileSize(selectedVideo.size) }}</p>
           </div>
-        </el-form-item>
-      </div>
-
-      <!-- 日记输入区域 -->
-      <el-form-item label="写日记（可选）">
-        <el-input
-          v-model="diary"
-          type="textarea"
-          placeholder="分享你的想法和感受..."
-          :rows="6"
-          maxlength="1000"
-          show-word-limit
-        />
+          <el-button @click="removeVideo" type="danger" size="small" :icon="Delete"></el-button>
+        </div>
       </el-form-item>
-    </el-card>
-
+    </div>
+    <!-- 图片上传区域 -->
+    <div v-if="showImageUpload">
+      <el-form-item label="上传图片" class="form-item">
+        <el-upload
+          ref="imageUpload"
+          :auto-upload="false"
+          :show-file-list="false"
+          accept="image/*"
+          multiple
+          :on-change="handleImageSelect"
+          :on-remove="removeImage"
+          drag
+          class="upload-area"
+        >
+          <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+          <div class="el-upload__text">
+            将图片文件拖到此处，或<em>点击上传</em>
+          </div>
+          <template #tip>
+            <div class="el-upload__tip">
+              支持 JPG, PNG, GIF 等格式，可多选
+            </div>
+          </template>
+        </el-upload>
+        <!-- 图片预览 -->
+        <div v-if="selectedImages.length > 0" class="images-preview">
+          <div v-for="(image, index) in selectedImages" :key="index" class="image-item">
+            <el-image
+              :src="image.preview"
+              :alt="image.name"
+              class="preview-image"
+              fit="cover"
+            />
+            <div class="image-info">
+              <p>{{ image.name }}</p>
+              <p>{{ formatFileSize(image.size) }}</p>
+            </div>
+            <el-button
+              @click="removeImage(index)"
+              type="danger"
+              size="small"
+              :icon="Delete"
+              circle
+            ></el-button>
+          </div>
+        </div>
+      </el-form-item>
+    </div>
+    <!-- 日记输入区域 -->
+    <el-form-item label="写日记（可选）" class="form-item">
+      <el-input
+        v-model="diary"
+        type="textarea"
+        placeholder="分享你的想法和感受..."
+        :rows="6"
+        maxlength="1000"
+        show-word-limit
+      />
+    </el-form-item>
     <!-- 上传按钮和进度条 -->
     <div class="upload-actions">
-      <el-button 
-        @click="uploadContent" 
-        :disabled="!canUpload || uploading" 
-        type="primary" 
+      <el-button
+        @click="uploadContent"
+        :disabled="!canUpload || uploading"
+        type="primary"
         size="large"
         :loading="uploading"
       >
         <el-icon v-if="!uploading"><UploadFilled /></el-icon>
         {{ uploading ? '上传中...' : '发布内容' }}
       </el-button>
-
-      <el-progress 
+      <el-progress
         v-if="uploading"
         :percentage="uploadProgress"
         :stroke-width="8"
@@ -162,13 +130,12 @@
       />
     </div>
   </div>
-  
 </template>
 
 <script>
 import { contentApi } from '@/api/content'
 import { ElMessage } from 'element-plus'
-import {  UploadFilled } from '@element-plus/icons-vue'
+import { UploadFilled, Delete, Location } from '@element-plus/icons-vue'
 
 export default {
   name: 'ContentUpload',
@@ -177,20 +144,20 @@ export default {
   },
   data() {
     return {
-      contentType: 1, // 1-短视频，2-图片，3-混合
+      contentType: 1,
       selectedVideo: null,
       selectedImages: [],
       diary: '',
       uploading: false,
       uploadProgress: 0,
       videoPreviewUrl: '',
-      imagePreviewUrls: [],
-      // 位置信息
       latitude: null,
       longitude: null,
       location: '',
       gettingLocation: false,
-      locationError: ''
+      locationError: '',
+      Delete,
+      Location
     }
   },
   computed: {
@@ -213,26 +180,18 @@ export default {
   },
   methods: {
     handleTypeChange() {
-      // 切换类型时清空已选择的文件
       this.selectedVideo = null
       this.selectedImages = []
       this.videoPreviewUrl = ''
-      this.imagePreviewUrls = []
     },
-
-    // 获取当前位置
     async getCurrentLocation() {
       this.gettingLocation = true
       this.locationError = ''
-
       try {
         const position = await this.getGeolocation()
         this.latitude = position.coords.latitude
         this.longitude = position.coords.longitude
-
-        // 获取位置描述
         await this.getLocationDescription()
-
         ElMessage.success('位置获取成功')
       } catch (error) {
         console.error('获取位置失败:', error)
@@ -242,15 +201,12 @@ export default {
         this.gettingLocation = false
       }
     },
-
-    // 获取地理位置
     getGeolocation() {
       return new Promise((resolve, reject) => {
         if (!navigator.geolocation) {
           reject(new Error('浏览器不支持地理位置'))
           return
         }
-
         navigator.geolocation.getCurrentPosition(
           resolve,
           reject,
@@ -262,15 +218,12 @@ export default {
         )
       })
     },
-
-    // 获取位置描述
     async getLocationDescription() {
       try {
         const response = await fetch(
           `https://api.mapbox.com/geocoding/v5/mapbox.places/${this.longitude},${this.latitude}.json?access_token=pk.eyJ1Ijoia3Jpc3RvcGhlcnFxIiwiYSI6ImNtYnl2c2RhMDAyY3IybXNmZzY5cmFhYWQifQ.DgqaIt3pvVHrEOmOmTO5aQ`
         )
         const data = await response.json()
-
         if (data.features && data.features.length > 0) {
           const place = data.features[0]
           this.location = place.place_name || place.text
@@ -282,14 +235,12 @@ export default {
         this.location = `${this.latitude.toFixed(6)}, ${this.longitude.toFixed(6)}`
       }
     },
-
     handleVideoSelect(file) {
       if (file.raw) {
         this.selectedVideo = file.raw
         this.videoPreviewUrl = URL.createObjectURL(file.raw)
       }
     },
-
     handleImageSelect(file) {
       if (file.raw) {
         const preview = URL.createObjectURL(file.raw)
@@ -301,7 +252,6 @@ export default {
         })
       }
     },
-
     removeVideo() {
       this.selectedVideo = null
       this.videoPreviewUrl = ''
@@ -309,12 +259,10 @@ export default {
         this.$refs.videoUpload.clearFiles()
       }
     },
-
     removeImage(index) {
       const removedImage = this.selectedImages.splice(index, 1)[0]
       URL.revokeObjectURL(removedImage.preview)
     },
-
     formatFileSize(bytes) {
       if (bytes === 0) return '0 Bytes'
       const k = 1024
@@ -322,7 +270,6 @@ export default {
       const i = Math.floor(Math.log(bytes) / Math.log(k))
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
     },
-
     async uploadContent() {
       if (!this.canUpload) {
         ElMessage.error('请选择要上传的文件')
@@ -335,27 +282,17 @@ export default {
       try {
         const formData = new FormData()
         formData.append('contentType', this.contentType)
-
-        if (this.diary) {
-          formData.append('diary', this.diary)
-        }
-
-        if (this.selectedVideo) {
-          formData.append('videoFile', this.selectedVideo)
-        }
-
+        if (this.diary) formData.append('diary', this.diary)
+        if (this.selectedVideo) formData.append('videoFile', this.selectedVideo)
         if (this.selectedImages.length > 0) {
           this.selectedImages.forEach(image => {
             formData.append('imageFiles', image.file)
           })
         }
-
-        // 添加位置信息
         if (this.latitude && this.longitude) {
           formData.append('latitude', this.latitude)
           formData.append('longitude', this.longitude)
         }
-
         if (this.location) {
           formData.append('location', this.location)
         }
@@ -387,30 +324,21 @@ export default {
         this.uploadProgress = 0
       }
     },
-
     resetForm() {
       this.contentType = 1
       this.selectedVideo = null
       this.selectedImages = []
       this.diary = ''
       this.videoPreviewUrl = ''
-      this.imagePreviewUrls = []
       this.latitude = null
       this.longitude = null
       this.location = ''
       this.locationError = ''
-
-      // 清空文件输入
-      if (this.$refs.videoUpload) {
-        this.$refs.videoUpload.clearFiles()
-      }
-      if (this.$refs.imageUpload) {
-        this.$refs.imageUpload.clearFiles()
-      }
+      if (this.$refs.videoUpload) this.$refs.videoUpload.clearFiles()
+      if (this.$refs.imageUpload) this.$refs.imageUpload.clearFiles()
     }
   },
   beforeUnmount() {
-    // 清理预览URL
     if (this.videoPreviewUrl) {
       URL.revokeObjectURL(this.videoPreviewUrl)
     }
@@ -423,30 +351,43 @@ export default {
 
 <style scoped>
 .content-upload {
-  height: 100vh;
-  overflow-y: auto;
-  padding: 16px;
-  box-sizing: border-box;
-}
-
-.upload-card {
-  max-width: 800px;
+  width: 100%;
   margin: 0 auto;
-  margin-bottom: 80px;
+  padding: 30px 0 0 0;
 }
 
 .card-header {
-  text-align: center;
+  background: linear-gradient(to right, rgb(55, 59, 68), rgb(66, 134, 244));
+  border-radius: 16px 16px 0 0;
+  padding: 24px 0 12px 0;
+  margin-bottom: 24px;
 }
 
 .upload-title {
-  font-size: 24px;
-  color: #333;
-  margin: 0;
+  text-align: center;
+  font-size: 28px;
+  font-weight: bold;
+  color: #fff;
+  letter-spacing: 2px;
+  margin-bottom: 0;
 }
 
-.content-type-selector {
-  margin-bottom: 30px;
+.form-item {
+  margin-bottom: 24px;
+}
+
+.el-button--primary {
+  background: linear-gradient(to right, rgb(55, 59, 68), rgb(66, 134, 244));
+  border: none;
+  color: #fff;
+  border-radius: 8px;
+  padding: 12px 32px;
+  font-size: 16px;
+}
+
+.el-button--primary:hover {
+  box-shadow: 0 2px 8px rgba(66,134,244,0.15);
+  filter: brightness(1.08);
 }
 
 .location-section {
@@ -460,7 +401,8 @@ export default {
 }
 
 .upload-area {
-  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .video-preview {
@@ -469,7 +411,8 @@ export default {
 }
 
 .preview-video {
-  max-width: 100%;
+  max-width: 400px;
+  max-height: 250px;
   border-radius: 8px;
   margin-bottom: 15px;
 }
@@ -479,10 +422,10 @@ export default {
   display: flex;
   flex-wrap: wrap;
   gap: 15px;
+  justify-content: center;
 }
 
 .image-item {
-  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -491,6 +434,7 @@ export default {
 .preview-image {
   width: 200px;
   height: 200px;
+  object-fit: cover;
   border-radius: 8px;
   margin-bottom: 10px;
 }
@@ -500,12 +444,6 @@ export default {
   margin-bottom: 10px;
 }
 
-.image-info p {
-  margin: 5px 0;
-  font-size: 14px;
-  color: #666;
-}
-
 .file-info {
   margin: 10px 0;
   font-size: 14px;
@@ -513,15 +451,12 @@ export default {
 }
 
 .upload-actions {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: white;
-  padding: 20px;
-  border-top: 1px solid #eee;
+  margin-top: 30px;
   text-align: center;
-  z-index: 1000;
+  background: none;
+  box-shadow: none;
+  border-top: none;
+  padding: 0;
 }
 
 .upload-progress {

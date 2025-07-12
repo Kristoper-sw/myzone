@@ -1,29 +1,21 @@
 <template>
-  <CommonLayout>
-    <div class="mosaic-content">
-      <el-card class="mosaic-header">
-        <template #header>
-          <h2>文化拼图</h2>
-        </template>
-        <p>探索世界各地的文化，点击卡片查看详情</p>
-      </el-card>
-      
-      <div class="mosaic-grid">
-        <MosaicCard
-          v-for="item in mosaicItems"
-          :key="item.id"
-          :item="item"
-          @click="goToDetail"
-        />
-      </div>
+  <div class="mosaic-content">
+    <el-card class="mosaic-header">
+      <template #header>
+        <h2>文化拼图</h2>
+      </template>
+      <p>探索世界各地的文化，点击卡片查看详情</p>
+    </el-card>
+
+    <div class="mosaic-grid">
+      <MosaicCard v-for="item in mosaicItems" :key="item.id" :item="item" @click="goToDetail" />
     </div>
-  </CommonLayout>
+  </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import CommonLayout from '@/components/layout/CommonLayout.vue'
 import MosaicCard from '@/components/content/MosaicCard.vue'
 
 const router = useRouter()
@@ -80,4 +72,4 @@ function goToDetail(item) {
     gap: 15px;
   }
 }
-</style> 
+</style>
