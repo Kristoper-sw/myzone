@@ -4,28 +4,25 @@
       <template #header>
         <h2 class="post-title">{{ post.title }}</h2>
       </template>
-      
-      <div v-if="post.mediaUrl" class="post-media">
+      <div v-if="post.mediaUrl || post.videoPath || post.imagePaths" class="post-media">
         <img 
-          v-if="isImage(post.mediaUrl)" 
-          :src="post.mediaUrl" 
+          v-if="isImage(post.mediaUrl || getFirstImage(post.imagePaths))" 
+          :src="post.mediaUrl || getFirstImage(post.imagePaths)" 
           :alt="post.title"
           class="post-image"
         />
         <video 
-          v-else 
+          v-else-if="post.videoPath || (post.mediaUrl && !isImage(post.mediaUrl))" 
           controls 
-          :src="post.mediaUrl" 
+          :src="post.videoPath || post.mediaUrl" 
           class="post-video"
         />
       </div>
-      
       <div class="post-description">
-        <p>{{ post.description }}</p>
+        <p>{{ post.description || post.diary }}</p>
       </div>
     </el-card>
   </div>
-  
   <div v-else class="post-not-found">
     <el-empty description="内容未找到">
       <el-button type="primary" @click="$router.go(-1)">返回</el-button>
@@ -34,18 +31,46 @@
 </template>
 
 <script setup>
-// 定义props
-defineProps({
-  post: {
-    type: Object,
-    default: null
+import { ref, onMounted, watch } from 'vue'
+import { contentApi } from '@/api/content'
+import { getFileUrlByEnv } from '@/config'
+
+const props = defineProps({
+  postId: {
+    type: [String, Number],
+    required: true
   }
 })
 
-// 判断是否为图片
+const post = ref(null)
+
+const getFirstImage = (imagePaths) => {
+  if (!imagePaths) return ''
+  try {
+    const arr = typeof imagePaths === 'string' ? JSON.parse(imagePaths) : imagePaths
+    return arr.length > 0 ? (arr[0].startsWith('http') ? arr[0] : getFileUrlByEnv(arr[0])) : ''
+  } catch {
+    return ''
+  }
+}
+
 const isImage = (url) => {
+  if (!url) return false
   return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url)
 }
+
+const loadDetail = async () => {
+  if (!props.postId) return
+  const res = await contentApi.getContentById(props.postId)
+  if (res.code === 200) {
+    post.value = res.data
+  } else {
+    post.value = null
+  }
+}
+
+onMounted(loadDetail)
+watch(() => props.postId, loadDetail)
 </script>
 
 <style scoped>

@@ -24,7 +24,7 @@
       <el-option label="已删除" value="2" />
     </el-select>
     
-    <el-button type="primary" @click="$emit('upload')">
+    <el-button type="primary" @click="$router.push('/upload')">
       <el-icon><Plus /></el-icon>
       上传新内容
     </el-button>

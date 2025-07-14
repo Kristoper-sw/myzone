@@ -1,9 +1,13 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
-import 'mapbox-gl/dist/mapbox-gl.css'
-import ElementPlus from 'element-plus'
-import 'element-plus/dist/index.css'
+// 移除同步加载的Mapbox CSS
+// import 'mapbox-gl/dist/mapbox-gl.css'
+// 导入Element Plus插件
+import ElementPlus from './plugins/element-plus'
 import './assets/styles/global.css'
 
-createApp(App).use(router).use(ElementPlus).mount('#app')
+const app = createApp(App)
+app.use(router)
+app.use(ElementPlus)
+app.mount('#app')

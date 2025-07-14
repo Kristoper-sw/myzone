@@ -1,8 +1,11 @@
 import axios from 'axios'
+import router from '@/router'
+import { ElMessage } from 'element-plus'
+import { apiBaseUrl } from '@/config'
 
 // 创建axios实例
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL: `${apiBaseUrl}/api`,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'
@@ -36,7 +39,12 @@ api.interceptors.response.use(
         // 未授权，清除token并跳转到登录页
         localStorage.removeItem('token')
         localStorage.removeItem('userInfo')
-        window.location.href = '/login'
+        
+        // 显示提示信息
+        ElMessage.error('登录已过期，请重新登录')
+        
+        // 使用Vue Router跳转到登录页
+        router.push('/login')
       }
       return Promise.reject(data || error.message)
     } else if (error.request) {

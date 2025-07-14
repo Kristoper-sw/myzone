@@ -131,3 +131,6 @@ npm run serve
 ## 许可证
 
 MIT License 
+
+## Todo
+4.增加视频第一帧作为封面功能

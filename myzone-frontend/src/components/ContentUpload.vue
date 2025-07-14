@@ -8,6 +8,10 @@
         <el-radio :label="3">混合</el-radio>
       </el-radio-group>
     </el-form-item>
+    <!-- 标题 -->
+    <el-form-item label="标题" class="form-item" required>
+      <el-input v-model="title" placeholder="请输入内容标题（必填）" maxlength="50" show-word-limit />
+    </el-form-item>
     <!-- 位置信息 -->
     <el-form-item label="位置信息" class="form-item">
       <div class="location-section">
@@ -134,13 +138,35 @@
 
 <script>
 import { contentApi } from '@/api/content'
-import { ElMessage } from 'element-plus'
+import { ElMessage } from '@/plugins/element-plus'
+// 只保留图标导入
 import { UploadFilled, Delete, Location } from '@element-plus/icons-vue'
+import { getFileUrlByEnv } from '@/config'
 
 export default {
   name: 'ContentUpload',
   components: {
     UploadFilled
+  },
+  props: {
+    editId: {
+      type: [String, Number],
+      default: null
+    },
+    mode: {
+      type: String,
+      default: 'create' // 'edit' or 'create'
+    }
+  },
+  watch: {
+    editId: {
+      immediate: true,
+      handler(newVal) {
+        if (this.mode === 'edit' && newVal) {
+          this.loadContentDetail(newVal)
+        }
+      }
+    }
   },
   data() {
     return {
@@ -157,7 +183,8 @@ export default {
       gettingLocation: false,
       locationError: '',
       Delete,
-      Location
+      Location,
+      title: '' // 新增标题字段
     }
   },
   computed: {
@@ -168,6 +195,8 @@ export default {
       return this.contentType === 2 || this.contentType === 3
     },
     canUpload() {
+      // 标题必填
+      if (!this.title || !this.title.trim()) return false
       if (this.contentType === 1) {
         return this.selectedVideo !== null
       } else if (this.contentType === 2) {
@@ -270,9 +299,84 @@ export default {
       const i = Math.floor(Math.log(bytes) / Math.log(k))
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
     },
+    async loadContentDetail(id) {
+      try {
+        const res = await this.$api.contentApi.getContentById(id)
+        if (res.code === 200) {
+          const c = res.data
+          this.title = c.title
+          this.contentType = c.contentType
+          this.diary = c.diary
+          this.location = c.location
+          this.latitude = c.latitude
+          this.longitude = c.longitude
+          // 处理图片
+          this.selectedImages = []
+          if (c.imagePaths) {
+            try {
+              const arr = JSON.parse(c.imagePaths)
+              this.selectedImages = arr.map((url, idx) => ({
+                name: `图片${idx+1}`,
+                preview: url.startsWith('http') ? url : getFileUrlByEnv(url),
+                url,
+                size: 0
+              }))
+            } catch {
+              // do nothing
+            }
+          }
+          // 处理视频
+          if (c.videoPath) {
+            this.selectedVideo = {
+              name: '视频',
+              preview: c.videoPath.startsWith('http') ? c.videoPath : getFileUrlByEnv(c.videoPath),
+              url: c.videoPath,
+              size: 0
+            }
+            this.videoPreviewUrl = this.selectedVideo.preview
+          }
+        }
+      } catch (e) {
+        ElMessage.error('加载内容详情失败')
+      }
+    },
     async uploadContent() {
+      if (this.mode === 'edit' && this.editId) {
+        // 编辑模式，调用更新接口
+        // TODO: 你需要在contentApi中实现updateContent方法
+        try {
+          const formData = new FormData()
+          formData.append('title', this.title)
+          formData.append('contentType', this.contentType)
+          if (this.diary) formData.append('diary', this.diary)
+          if (this.selectedVideo && this.selectedVideo.file) formData.append('videoFile', this.selectedVideo.file)
+          if (this.selectedImages.length > 0) {
+            this.selectedImages.forEach(image => {
+              if (image.file) formData.append('imageFiles', image.file)
+            })
+          }
+          if (this.latitude && this.longitude) {
+            formData.append('latitude', this.latitude)
+            formData.append('longitude', this.longitude)
+          }
+          if (this.location) {
+            formData.append('location', this.location)
+          }
+          const res = await this.$api.contentApi.updateContent(this.editId, formData)
+          if (res.code === 200) {
+            ElMessage.success('内容更新成功！')
+            this.$emit('edit-success', res.data)
+          } else {
+            ElMessage.error(res.message || '更新失败')
+          }
+        } catch (e) {
+          ElMessage.error('更新失败，请重试')
+        }
+        return
+      }
       if (!this.canUpload) {
-        ElMessage.error('请选择要上传的文件')
+        ElMessage.error('请填写标题并选择要上传的文件')
+        alert('请填写标题并选择要上传的文件') // 使用原生 alert 替代 ElMessage
         return
       }
 
@@ -281,6 +385,7 @@ export default {
 
       try {
         const formData = new FormData()
+        formData.append('title', this.title)
         formData.append('contentType', this.contentType)
         if (this.diary) formData.append('diary', this.diary)
         if (this.selectedVideo) formData.append('videoFile', this.selectedVideo)
@@ -305,20 +410,23 @@ export default {
         }, 200)
 
         const response = await contentApi.uploadContent(formData)
-
         clearInterval(progressInterval)
         this.uploadProgress = 100
-
-        if (response.code === 200) {
+        // 兼容Result结构和原始axios响应
+        const res = response.code !== undefined ? response : (response.data || {})
+        if (res.code === 200) {
           ElMessage.success('内容上传成功！')
+          alert('内容上传成功！') // 使用原生 alert 替代 ElMessage
           this.resetForm()
-          this.$emit('upload-success', response.data)
+          this.$emit('upload-success', res.data)
         } else {
-          ElMessage.error(response.message || '上传失败')
+          ElMessage.error(res.message || '上传失败')
+          alert(res.message || '上传失败') // 使用原生 alert 替代 ElMessage
         }
       } catch (error) {
         console.error('上传失败:', error)
         ElMessage.error('上传失败，请重试')
+        alert('上传失败，请重试') // 使用原生 alert 替代 ElMessage
       } finally {
         this.uploading = false
         this.uploadProgress = 0
@@ -334,6 +442,7 @@ export default {
       this.longitude = null
       this.location = ''
       this.locationError = ''
+      this.title = ''
       if (this.$refs.videoUpload) this.$refs.videoUpload.clearFiles()
       if (this.$refs.imageUpload) this.$refs.imageUpload.clearFiles()
     }
@@ -354,6 +463,29 @@ export default {
   width: 100%;
   margin: 0 auto;
   padding: 30px 0 0 0;
+}
+
+/* 内容类型选择器样式 */
+:deep(.el-radio-group) {
+  display: flex;
+  gap: 20px;
+}
+
+:deep(.el-radio) {
+  margin-right: 0;
+}
+
+:deep(.el-radio__input.is-checked + .el-radio__label) {
+  color: rgb(66, 134, 244);
+}
+
+:deep(.el-radio__input.is-checked .el-radio__inner) {
+  border-color: rgb(66, 134, 244);
+  background: rgb(66, 134, 244);
+}
+
+:deep(.el-radio__input .el-radio__inner:hover) {
+  border-color: rgb(66, 134, 244);
 }
 
 .card-header {

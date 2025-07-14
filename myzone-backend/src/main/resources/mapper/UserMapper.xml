@@ -43,7 +43,7 @@
     </select>
 
     <!-- 插入用户 -->
-    <insert id="insert" parameterType="com.sxw.myzonebackend.entity.User" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.sxw.myzonebackend.entity.User" useGeneratedKeys="true" keyProperty="userId">
         INSERT INTO user (
             username, password, email, nickname, avatar, phone, status, create_time, update_time
         ) VALUES (
@@ -65,7 +65,7 @@
             <if test="status != null">status = #{status},</if>
             update_time = NOW()
         </set>
-        WHERE id = #{id}
+        WHERE id = #{userId}
     </update>
 
     <!-- 根据ID删除用户 -->

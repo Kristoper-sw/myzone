@@ -4,13 +4,13 @@
     <div class="content-preview">
       <video 
         v-if="content.videoPath" 
-        :src="getFileUrl(content.videoPath)" 
+        :src="getFileUrlByEnv(content.videoPath)" 
         class="preview-media" 
         controls
       />
       <img 
         v-else-if="getFirstImage(content.imagePaths)" 
-        :src="getFileUrl(getFirstImage(content.imagePaths))" 
+        :src="getFileUrlByEnv(getFirstImage(content.imagePaths))" 
         class="preview-media" 
       />
       <div v-else class="no-media">
@@ -21,6 +21,9 @@
     
     <!-- 内容信息 -->
     <div class="content-info">
+      <div class="content-title" v-if="content.title">
+        <h3>{{ content.title }}</h3>
+      </div>
       <div class="content-header">
         <el-tag :type="getContentTypeTag(content.contentType)">
           {{ getContentTypeText(content.contentType) }}
@@ -51,8 +54,8 @@
     
     <!-- 操作按钮 -->
     <div class="content-actions">
-      <el-button size="small" @click="$emit('view', content)">查看</el-button>
-      <el-button size="small" type="primary" @click="$emit('edit', content)">编辑</el-button>
+      <!-- <el-button size="small" @click="$emit('view', content)">查看</el-button>
+      <el-button size="small" type="primary" @click="$emit('edit', content)">编辑</el-button> -->
       <el-button size="small" type="danger" @click="$emit('delete', content)">删除</el-button>
     </div>
   </div>
@@ -60,6 +63,7 @@
 
 <script setup>
 import { Picture, Location } from '@element-plus/icons-vue'
+import { getFileUrlByEnv } from '@/config'
 
 // 定义props
 defineProps({
@@ -71,21 +75,6 @@ defineProps({
 
 // 定义emits
 defineEmits(['view', 'edit', 'delete'])
-
-// 获取文件URL
-const getFileUrl = (path) => {
-  if (!path) return ''
-  // 如果路径已经以http开头，直接返回
-  if (path.startsWith('http')) {
-    return path
-  }
-  // 如果路径以/开头，直接拼接baseURL
-  if (path.startsWith('/')) {
-    return `http://localhost:8080${path}`
-  }
-  // 否则添加/uploads/前缀
-  return `http://localhost:8080/uploads/${path}`
-}
 
 // 获取第一张图片
 const getFirstImage = (imagePaths) => {
@@ -197,6 +186,14 @@ const formatTime = (time) => {
 
 .content-info {
   padding: 20px;
+}
+
+.content-title h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: rgb(55, 59, 68);
+  font-size: 20px;
+  font-weight: 700;
 }
 
 .content-header {

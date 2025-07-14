@@ -1,0 +1,325 @@
+# MyZone 项目 Azure VM Ubuntu 一体化部署指南
+ssh -i "D:\myzoneVM_key.pem" ubuntu@20.255.73.221
+
+> **重要说明**：本指南适用于 Windows 本地开发环境，部署目标为 Ubuntu 服务器。
+> - 所有以 `/home/`、`/etc/` 等开头的路径均为 Ubuntu 服务器路径
+> - Windows 本地相关命令已特别标注
+> - 构建和上传步骤已针对 Windows 环境优化
+
+## 1. 服务器准备
+- 系统：Ubuntu 20.04/22.04
+- 已开放 22（SSH）、80（HTTP）、443（HTTPS）端口
+- 已有域名：www.culturezone.space
+
+## 2. 安装基础环境
+
+```bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y openjdk-17-jdk nginx mysql-server certbot python3-certbot-nginx unzip
+```
+
+## 3. 配置 MySQL 数据库
+
+```bash
+sudo mysql_secure_installation
+# 按提示设置root密码，移除匿名用户，禁止远程root，删除测试库
+
+# 登录MySQL
+mysql -u root -p
+
+# 创建数据库和用户（示例）
+CREATE DATABASE myzone DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'myzoneuser'@'localhost' IDENTIFIED BY 'yourpassword';
+GRANT ALL PRIVILEGES ON myzone.* TO 'myzoneuser'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+```
+- 修改 myzone-backend/src/main/resources/application.yml，配置数据库连接为本地MySQL。
+
+## 3.1 数据库建表SQL（请在MySQL中执行）
+
+```sql
+-- 创建数据库
+CREATE DATABASE IF NOT EXISTS myzone DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+USE myzone;
+
+-- 用户表
+CREATE TABLE IF NOT EXISTS `user` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '用户ID',
+    `username` VARCHAR(50) NOT NULL COMMENT '用户名',
+    `password` VARCHAR(255) NOT NULL COMMENT '密码',
+    `email` VARCHAR(100) DEFAULT NULL COMMENT '邮箱',
+    `nickname` VARCHAR(50) DEFAULT NULL COMMENT '昵称',
+    `avatar` VARCHAR(255) DEFAULT NULL COMMENT '头像',
+    `phone` VARCHAR(20) DEFAULT NULL COMMENT '手机号',
+    `status` TINYINT NOT NULL DEFAULT 1 COMMENT '用户状态：0-禁用，1-正常',
+    `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_username` (`username`),
+    UNIQUE KEY `uk_email` (`email`),
+    KEY `idx_status` (`status`),
+    KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户表';
+
+-- 内容表
+CREATE TABLE IF NOT EXISTS `content` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '内容ID',
+    `user_id` BIGINT NOT NULL COMMENT '用户ID',
+    `content_type` INT NOT NULL COMMENT '内容类型：1-短视频，2-图片，3-混合',
+    `title` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '内容标题',
+    `diary` TEXT COMMENT '日记内容（可选）',
+    `video_path` VARCHAR(500) COMMENT '视频文件路径',
+    `image_paths` TEXT COMMENT '图片文件路径列表（JSON格式存储）',
+    `latitude` DOUBLE COMMENT '纬度',
+    `longitude` DOUBLE COMMENT '经度',
+    `location` VARCHAR(255) COMMENT '位置描述',
+    `status` INT DEFAULT 1 COMMENT '内容状态：0-草稿，1-已发布，2-已删除',
+    `like_count` INT DEFAULT 0 COMMENT '点赞数',
+    `comment_count` INT DEFAULT 0 COMMENT '评论数',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX `idx_user_id` (`user_id`),
+    INDEX `idx_content_type` (`content_type`),
+    INDEX `idx_status` (`status`),
+    INDEX `idx_create_time` (`create_time`),
+    INDEX `idx_location` (`latitude`, `longitude`),
+    FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='内容表';
+
+-- 评论表
+CREATE TABLE IF NOT EXISTS `comment` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '评论ID',
+    `content_id` BIGINT NOT NULL COMMENT '内容ID',
+    `user_id` BIGINT NOT NULL COMMENT '用户ID',
+    `parent_id` BIGINT DEFAULT NULL COMMENT '父评论ID（为NULL表示一级评论）',
+    `content` TEXT NOT NULL COMMENT '评论内容',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`),
+    INDEX `idx_content_id` (`content_id`),
+    INDEX `idx_user_id` (`user_id`),
+    INDEX `idx_parent_id` (`parent_id`),
+    FOREIGN KEY (`content_id`) REFERENCES `content`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='评论表';
+
+-- 点赞表
+CREATE TABLE IF NOT EXISTS `content_like` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '点赞ID',
+    `user_id` BIGINT NOT NULL COMMENT '用户ID',
+    `content_id` BIGINT NOT NULL COMMENT '内容ID',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '点赞时间',
+    UNIQUE KEY `uk_user_content` (`user_id`, `content_id`),
+    INDEX `idx_content_id` (`content_id`),
+    FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`content_id`) REFERENCES `content`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='内容点赞表';
+```
+
+## 4. 部署后端（Spring Boot）
+
+### 4.1 在 Windows 本地构建 JAR 包
+
+**方法一：使用 Maven Wrapper（推荐）**
+```cmd
+cd myzone-backend
+mvnw.cmd clean package -DskipTests
+```
+**方法二：使用已安装的 Maven**
+```cmd
+cd myzone-backend
+mvn clean package -DskipTests
+```
+**方法三：使用 IDE（如 IntelliJ IDEA）**
+- 在 IDE 中打开 myzone-backend 项目
+- 右键点击 `pom.xml` → Maven → Reload Project
+- 运行 Maven 构建：Lifecycle → clean → package
+
+> **注意**：如果遇到 `'mvnw' is not recognized` 错误，请使用方法二或方法三。
+
+### 4.2 上传 JAR 包到服务器
+
+**方法一：使用 WinSCP（推荐，图形化界面）**
+1. 下载并安装 WinSCP
+2. 连接服务器：主机 your-vm-ip，用户名 youruser，端口 22
+3. 将 `target/myzone-backend-xxx.jar` 拖拽到服务器 `/home/youruser/` 目录
+
+**方法二：使用 Git Bash 或 PowerShell**
+```bash
+scp target/myzone-backend-xxx.jar youruser@your-vm-ip:/home/youruser/
+```
+
+### 4.3 在 Ubuntu 服务器启动后端服务
+
+```bash
+cd /home/ubuntu
+nohup java -jar myzone-backend-xxx.jar --spring.profiles.active=prod > backend.log 2>&1 &
+```
+- 后端默认监听 8080 端口。
+
+## 5. 部署前端（Vite/Vue3）
+
+### 5.1 在 Windows 本地构建前端静态文件
+
+```cmd
+cd myzone-frontend
+npm install
+npm run build
+```
+- 生成 `dist/` 目录
+
+### 5.2 上传 dist 到服务器
+
+**方法一：使用 WinSCP（推荐）**
+- 将整个 `dist` 文件夹拖拽到服务器 `/home/youruser/myzone-frontend-dist`
+
+**方法二：使用 Git Bash 或 PowerShell**
+```bash
+scp -r dist youruser@your-vm-ip:/home/youruser/myzone-frontend-dist
+```
+
+### 5.3 配置 Nginx
+
+#### 5.3.1 备份并编辑 Nginx 配置
+
+```bash
+sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.bak
+sudo nano /etc/nginx/sites-available/default
+```
+
+#### 5.3.2 推荐 Nginx 配置模板
+
+```
+server {
+    listen 80;
+    server_name www.culturezone.space;
+
+    # 自动重定向到 HTTPS
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name www.culturezone.space;
+
+    ssl_certificate /etc/letsencrypt/live/www.culturezone.space/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/www.culturezone.space/privkey.pem;
+
+    root /home/youruser/myzone-frontend-dist;
+    index index.html;
+
+    # 前端路由支持
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # 后端API代理
+    location /api/ {
+        proxy_pass http://localhost:8080/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # 静态资源（如上传文件）
+    location /uploads/ {
+        alias /home/youruser/uploads/;
+    }
+}
+```
+
+### 5.4 申请 HTTPS 证书（Let's Encrypt）
+
+```bash
+sudo certbot --nginx -d www.culturezone.space
+# 按提示完成证书申请
+```
+
+### 5.5 重载 Nginx
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+## 6. 生产环境建议
+
+- 后端服务建议用 systemd 管理，防止意外退出：
+  ```bash
+  sudo nano /etc/systemd/system/myzone-backend.service
+  ```
+  内容示例：
+  ```
+  [Unit]
+  Description=MyZone Spring Boot Backend
+  After=network.target
+
+  [Service]
+  User=youruser
+  ExecStart=/usr/bin/java -jar /home/youruser/myzone-backend-xxx.jar
+  SuccessExitStatus=143
+  Restart=on-failure
+  RestartSec=10
+
+  [Install]
+  WantedBy=multi-user.target
+  ```
+  启动并设置开机自启：
+  ```bash
+  sudo systemctl daemon-reload
+  sudo systemctl start myzone-backend
+  sudo systemctl enable myzone-backend
+  ```
+
+- 数据库定期备份
+- 防火墙建议只开放 22、80、443 端口
+
+## 7. 访问方式
+
+- 访问 https://www.culturezone.space/ 即可访问前端页面
+- 前端所有 API 请求自动代理到后端 /api/
+- 上传文件等静态资源通过 /uploads/ 访问
+
+---
+
+## 8. Windows 电脑用 SSH 连接 Azure Ubuntu 服务器
+
+### 8.1 使用密钥登录（推荐）
+
+在 Windows 本地命令行（CMD/PowerShell/Git Bash）执行：
+
+```bash
+ssh -i "D:\myzoneVM_key.pem" ubuntu@20.255.73.221
+```
+
+### 8.2 使用 Windows Terminal / CMD / PowerShell
+
+```bash
+ssh youruser@your-vm-ip
+```
+- 第一次连接会提示是否信任主机，输入 yes。
+- 输入密码即可登录。
+
+### 8.3 使用 Xshell、PuTTY 等图形化工具
+- 下载并安装 Xshell 或 PuTTY。
+- 新建会话，主机填写 your-vm-ip，端口 22，用户名 youruser。
+- 连接后输入密码即可。
+
+### 8.4 使用密钥登录（推荐）
+- 在 Windows 上用 PowerShell 生成密钥：
+  ```bash
+  ssh-keygen -t rsa -b 4096
+  # 按提示保存到 C:\Users\你的用户名\.ssh\id_rsa
+  ```
+- 将公钥内容复制到服务器 ~/.ssh/authorized_keys 文件中。
+- 以后用：
+  ```bash
+  ssh youruser@your-vm-ip
+  ```
+  即可免密登录。
+
+---
+
+如有任何问题，欢迎随时咨询！ 

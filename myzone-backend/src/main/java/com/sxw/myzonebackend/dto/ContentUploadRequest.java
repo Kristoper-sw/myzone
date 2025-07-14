@@ -16,6 +16,12 @@ public class ContentUploadRequest {
     private Integer contentType;
     
     /**
+     * 内容标题（必填）
+     */
+    @NotNull(message = "标题不能为空")
+    private String title;
+    
+    /**
      * 日记内容（可选）
      */
     private String diary;

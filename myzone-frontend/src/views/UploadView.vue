@@ -40,7 +40,7 @@ const handleUploadSuccess = () => {
 }
 
 const goToProfile = () => {
-  router.push('/profile')
+  router.push('/my-contents')
 }
 
 const continueUpload = () => {

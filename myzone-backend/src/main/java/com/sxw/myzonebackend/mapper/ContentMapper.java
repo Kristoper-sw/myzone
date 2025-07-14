@@ -14,9 +14,9 @@ public interface ContentMapper {
     /**
      * 插入新内容
      */
-    @Insert("INSERT INTO content (user_id, content_type, video_path, image_paths, diary, " +
+    @Insert("INSERT INTO content (user_id, content_type, title, video_path, image_paths, diary, " +
             "latitude, longitude, location, status, like_count, comment_count, create_time, update_time) " +
-            "VALUES (#{userId}, #{contentType}, #{videoPath}, #{imagePaths}, #{diary}, " +
+            "VALUES (#{userId}, #{contentType}, #{title}, #{videoPath}, #{imagePaths}, #{diary}, " +
             "#{latitude}, #{longitude}, #{location}, #{status}, #{likeCount}, #{commentCount}, " +
             "#{createTime}, #{updateTime})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
@@ -31,6 +31,7 @@ public interface ContentMapper {
         @Result(property = "id", column = "id"),
         @Result(property = "userId", column = "user_id"),
         @Result(property = "contentType", column = "content_type"),
+        @Result(property = "title", column = "title"),
         @Result(property = "videoPath", column = "video_path"),
         @Result(property = "imagePaths", column = "image_paths"),
         @Result(property = "diary", column = "diary"),
@@ -56,11 +57,15 @@ public interface ContentMapper {
     /**
      * 根据内容ID查询内容详情
      */
-    @Select("SELECT * FROM content WHERE id = #{contentId}")
+    @Select("SELECT c.*, u.username, u.nickname, u.avatar " +
+            "FROM content c " +
+            "LEFT JOIN user u ON c.user_id = u.id " +
+            "WHERE c.id = #{contentId}")
     @Results({
         @Result(property = "id", column = "id"),
         @Result(property = "userId", column = "user_id"),
         @Result(property = "contentType", column = "content_type"),
+        @Result(property = "title", column = "title"),
         @Result(property = "videoPath", column = "video_path"),
         @Result(property = "imagePaths", column = "image_paths"),
         @Result(property = "diary", column = "diary"),
@@ -71,7 +76,11 @@ public interface ContentMapper {
         @Result(property = "likeCount", column = "like_count"),
         @Result(property = "commentCount", column = "comment_count"),
         @Result(property = "createTime", column = "create_time"),
-        @Result(property = "updateTime", column = "update_time")
+        @Result(property = "updateTime", column = "update_time"),
+        @Result(property = "user.userId", column = "user_id"),
+        @Result(property = "user.username", column = "username"),
+        @Result(property = "user.nickname", column = "nickname"),
+        @Result(property = "user.avatar", column = "avatar")
     })
     Content selectContentById(Long contentId);
     
@@ -89,6 +98,24 @@ public interface ContentMapper {
     int updateContentStatus(@Param("contentId") Long contentId, 
                            @Param("userId") Long userId, 
                            @Param("status") Integer status);
+    
+    /**
+     * 更新内容点赞数
+     */
+    @Update("UPDATE content SET like_count = like_count + #{delta} WHERE id = #{contentId}")
+    int updateLikeCount(@Param("contentId") Long contentId, @Param("delta") int delta);
+    
+    /**
+     * 更新内容评论数
+     */
+    @Update("UPDATE content SET comment_count = comment_count + #{delta} WHERE id = #{contentId}")
+    int updateCommentCount(@Param("contentId") Long contentId, @Param("delta") int delta);
+    
+    /**
+     * 更新内容
+     */
+    @Update("UPDATE content SET content_type=#{contentType}, title=#{title}, diary=#{diary}, video_path=#{videoPath}, image_paths=#{imagePaths}, latitude=#{latitude}, longitude=#{longitude}, location=#{location}, update_time=#{updateTime} WHERE id=#{id}")
+    int updateContent(Content content);
     
     /**
      * 查询所有已发布的内容（用于地图展示）

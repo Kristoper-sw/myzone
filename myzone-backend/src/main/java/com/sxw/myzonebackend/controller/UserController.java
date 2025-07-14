@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/user")
-@CrossOrigin(origins = "*")
 public class UserController {
 
     @Autowired
@@ -59,22 +58,7 @@ public class UserController {
     @GetMapping("/info")
     public Result<User> getUserInfo(HttpServletRequest request) {
         try {
-            String token = request.getHeader("Authorization");
-            if (token != null && token.startsWith("Bearer ")) {
-                token = token.substring(7);
-            }
-            
-            if (token == null) {
-                return Result.error("未提供认证令牌");
-            }
-
-            String username = jwtUtil.getUsernameFromToken(token);
-            Long userId = jwtUtil.getUserIdFromToken(token);
-            
-            if (username == null || userId == null) {
-                return Result.error("无效的认证令牌");
-            }
-
+            Long userId = (Long) request.getAttribute("userId");
             User user = userService.getUserInfo(userId);
             if (user == null) {
                 return Result.error("用户不存在");
@@ -93,20 +77,7 @@ public class UserController {
             @Valid @RequestBody UpdateUserRequest request,
             HttpServletRequest httpRequest) {
         try {
-            String token = httpRequest.getHeader("Authorization");
-            if (token != null && token.startsWith("Bearer ")) {
-                token = token.substring(7);
-            }
-            
-            if (token == null) {
-                return Result.error("未提供认证令牌");
-            }
-
-            Long userId = jwtUtil.getUserIdFromToken(token);
-            if (userId == null) {
-                return Result.error("无效的认证令牌");
-            }
-
+            Long userId = (Long) httpRequest.getAttribute("userId");
             userService.updateUserInfo(userId, request);
             return Result.success("用户信息更新成功");
         } catch (Exception e) {

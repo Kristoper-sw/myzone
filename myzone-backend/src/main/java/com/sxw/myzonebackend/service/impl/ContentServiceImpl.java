@@ -7,14 +7,18 @@ import com.sxw.myzonebackend.dto.FileUploadResponse;
 import com.sxw.myzonebackend.dto.MapContentResponse;
 import com.sxw.myzonebackend.dto.PageResponse;
 import com.sxw.myzonebackend.entity.Content;
+import com.sxw.myzonebackend.entity.ContentLike;
 import com.sxw.myzonebackend.entity.User;
 import com.sxw.myzonebackend.mapper.ContentMapper;
+import com.sxw.myzonebackend.mapper.ContentLikeMapper;
+import com.sxw.myzonebackend.mapper.CommentMapper;
 import com.sxw.myzonebackend.service.ContentService;
 import com.sxw.myzonebackend.service.UserService;
 import com.sxw.myzonebackend.util.FileUploadUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -38,6 +42,12 @@ public class ContentServiceImpl implements ContentService {
     @Autowired
     private ContentMapper contentMapper;
     
+    @Autowired
+    private ContentLikeMapper contentLikeMapper;
+    
+    @Autowired
+    private CommentMapper commentMapper;
+    
     @Override
     public Content uploadContent(Long userId, ContentUploadRequest request, 
                                MultipartFile videoFile, List<MultipartFile> imageFiles) {
@@ -53,6 +63,7 @@ public class ContentServiceImpl implements ContentService {
         content.setCommentCount(0);
         content.setCreateTime(LocalDateTime.now());
         content.setUpdateTime(LocalDateTime.now());
+        content.setTitle(request.getTitle());
         
         // 处理视频文件上传
         if (videoFile != null && !videoFile.isEmpty()) {
@@ -114,7 +125,12 @@ public class ContentServiceImpl implements ContentService {
     }
     
     @Override
+    @Transactional
     public boolean deleteContent(Long userId, Long contentId) {
+        // 先删除评论
+        commentMapper.deleteByContentId(contentId);
+        // 先删除点赞
+        contentLikeMapper.deleteByContentId(contentId);
         int result = contentMapper.deleteContent(contentId, userId);
         return result > 0;
     }
@@ -138,6 +154,97 @@ public class ContentServiceImpl implements ContentService {
         return convertToMapContentResponses(contents);
     }
     
+    @Override
+    @Transactional
+    public boolean likeContent(Long userId, Long contentId) {
+        if (contentLikeMapper.exists(userId, contentId) > 0) {
+            return false; // 已点赞
+        }
+        ContentLike like = new ContentLike();
+        like.setUserId(userId);
+        like.setContentId(contentId);
+        int inserted = contentLikeMapper.insert(like);
+        if (inserted > 0) {
+            contentMapper.updateLikeCount(contentId, 1);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    @Transactional
+    public boolean unlikeContent(Long userId, Long contentId) {
+        if (contentLikeMapper.exists(userId, contentId) == 0) {
+            return false; // 未点赞
+        }
+        int deleted = contentLikeMapper.delete(userId, contentId);
+        if (deleted > 0) {
+            contentMapper.updateLikeCount(contentId, -1);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean hasLiked(Long userId, Long contentId) {
+        return contentLikeMapper.exists(userId, contentId) > 0;
+    }
+    
+    @Override
+    @Transactional
+    public Content updateContent(Long userId, Long contentId, ContentUploadRequest request, MultipartFile videoFile, List<MultipartFile> imageFiles) {
+        // 查询原内容
+        Content content = contentMapper.selectContentById(contentId);
+        if (content == null) {
+            throw new RuntimeException("内容不存在");
+        }
+        if (!content.getUserId().equals(userId)) {
+            throw new RuntimeException("无权限编辑该内容");
+        }
+        // 更新字段
+        content.setContentType(request.getContentType());
+        content.setTitle(request.getTitle());
+        content.setDiary(request.getDiary());
+        content.setLatitude(request.getLatitude());
+        content.setLongitude(request.getLongitude());
+        content.setLocation(request.getLocation());
+        content.setUpdateTime(LocalDateTime.now());
+        // 处理视频
+        if (videoFile != null && !videoFile.isEmpty()) {
+            FileUploadResponse videoResponse = fileUploadUtil.uploadVideo(videoFile);
+            if (videoResponse.getSuccess()) {
+                content.setVideoPath(videoResponse.getFilePath());
+            } else {
+                throw new RuntimeException("视频上传失败: " + videoResponse.getErrorMessage());
+            }
+        }
+        // 处理图片
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            List<String> imagePaths = new ArrayList<>();
+            for (MultipartFile imageFile : imageFiles) {
+                if (!imageFile.isEmpty()) {
+                    FileUploadResponse imageResponse = fileUploadUtil.uploadImage(imageFile);
+                    if (imageResponse.getSuccess()) {
+                        imagePaths.add(imageResponse.getFilePath());
+                    } else {
+                        throw new RuntimeException("图片上传失败: " + imageResponse.getErrorMessage());
+                    }
+                }
+            }
+            try {
+                content.setImagePaths(objectMapper.writeValueAsString(imagePaths));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("图片路径序列化失败", e);
+            }
+        }
+        // 更新数据库
+        int result = contentMapper.updateContent(content);
+        if (result <= 0) {
+            throw new RuntimeException("内容更新失败");
+        }
+        return contentMapper.selectContentById(contentId);
+    }
+    
     /**
      * 将Content实体转换为MapContentResponse
      */
@@ -150,9 +257,7 @@ public class ContentServiceImpl implements ContentService {
             response.setLatitude(content.getLatitude());
             response.setLongitude(content.getLongitude());
             response.setLocation(content.getLocation());
-            response.setTitle(content.getDiary() != null && !content.getDiary().isEmpty() 
-                ? content.getDiary().substring(0, Math.min(content.getDiary().length(), 50)) + "..." 
-                : "精彩内容");
+            response.setTitle(content.getTitle()); // 直接用title字段
             response.setDescription(content.getDiary());
             response.setImageUrl(content.getImagePaths());
             response.setVideoUrl(content.getVideoPath());

@@ -54,4 +54,24 @@ public interface ContentService {
      */
     List<MapContentResponse> getContentsByArea(Double minLat, Double maxLat, 
                                              Double minLng, Double maxLng);
+
+    /**
+     * 点赞内容
+     */
+    boolean likeContent(Long userId, Long contentId);
+
+    /**
+     * 取消点赞
+     */
+    boolean unlikeContent(Long userId, Long contentId);
+
+    /**
+     * 判断用户是否已点赞
+     */
+    boolean hasLiked(Long userId, Long contentId);
+
+    /**
+     * 编辑内容（支持文件和字段）
+     */
+    Content updateContent(Long userId, Long contentId, ContentUploadRequest request, MultipartFile videoFile, List<MultipartFile> imageFiles);
 } 

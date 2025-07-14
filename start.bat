@@ -5,7 +5,7 @@ echo ========================================
 echo.
 
 echo 正在启动后端服务...
-start "MyZone Backend" cmd /k "cd myzone-backend && mvn spring-boot:run"
+start "MyZone Backend" cmd /k "cd myzone-backend && mvnw.cmd spring-boot:run"
 
 echo 等待后端服务启动...
 timeout /t 10 /nobreak > nul

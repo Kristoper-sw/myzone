@@ -20,14 +20,10 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/content")
-@CrossOrigin(origins = "*")
 public class ContentController {
 
     @Autowired
     private ContentService contentService;
-
-    @Autowired
-    private JwtUtil jwtUtil;
 
     /**
      * 上传内容（包含文件和日记）
@@ -35,6 +31,7 @@ public class ContentController {
     @PostMapping("/upload")
     public Result<Content> uploadContent(
             @RequestParam("contentType") Integer contentType,
+            @RequestParam("title") String title,
             @RequestParam(value = "diary", required = false) String diary,
             @RequestParam(value = "videoFile", required = false) MultipartFile videoFile,
             @RequestParam(value = "imageFiles", required = false) List<MultipartFile> imageFiles,
@@ -44,23 +41,12 @@ public class ContentController {
             HttpServletRequest request) {
         try {
             // 获取用户ID
-            String token = request.getHeader("Authorization");
-            if (token != null && token.startsWith("Bearer ")) {
-                token = token.substring(7);
-            }
-            
-            if (token == null) {
-                return Result.error("未提供认证令牌");
-            }
-
-            Long userId = jwtUtil.getUserIdFromToken(token);
-            if (userId == null) {
-                return Result.error("无效的认证令牌");
-            }
+            Long userId = (Long) request.getAttribute("userId");
 
             // 构建请求对象
             ContentUploadRequest uploadRequest = new ContentUploadRequest();
             uploadRequest.setContentType(contentType);
+            uploadRequest.setTitle(title);
             uploadRequest.setDiary(diary);
             uploadRequest.setLatitude(latitude);
             uploadRequest.setLongitude(longitude);
@@ -94,19 +80,7 @@ public class ContentController {
             HttpServletRequest request) {
         try {
             // 验证用户权限（只能查看自己的内容）
-            String token = request.getHeader("Authorization");
-            if (token != null && token.startsWith("Bearer ")) {
-                token = token.substring(7);
-            }
-            
-            if (token == null) {
-                return Result.error("未提供认证令牌");
-            }
-
-            Long currentUserId = jwtUtil.getUserIdFromToken(token);
-            if (currentUserId == null) {
-                return Result.error("无效的认证令牌");
-            }
+            Long currentUserId = (Long) request.getAttribute("userId");
 
             if (!currentUserId.equals(userId)) {
                 return Result.error("无权限查看其他用户的内容");
@@ -142,19 +116,7 @@ public class ContentController {
     @DeleteMapping("/{contentId}")
     public Result<String> deleteContent(@PathVariable Long contentId, HttpServletRequest request) {
         try {
-            String token = request.getHeader("Authorization");
-            if (token != null && token.startsWith("Bearer ")) {
-                token = token.substring(7);
-            }
-            
-            if (token == null) {
-                return Result.error("未提供认证令牌");
-            }
-
-            Long userId = jwtUtil.getUserIdFromToken(token);
-            if (userId == null) {
-                return Result.error("无效的认证令牌");
-            }
+            Long userId = (Long) request.getAttribute("userId");
 
             boolean success = contentService.deleteContent(userId, contentId);
             if (success) {
@@ -176,19 +138,7 @@ public class ContentController {
             @RequestParam Integer status,
             HttpServletRequest request) {
         try {
-            String token = request.getHeader("Authorization");
-            if (token != null && token.startsWith("Bearer ")) {
-                token = token.substring(7);
-            }
-            
-            if (token == null) {
-                return Result.error("未提供认证令牌");
-            }
-
-            Long userId = jwtUtil.getUserIdFromToken(token);
-            if (userId == null) {
-                return Result.error("无效的认证令牌");
-            }
+            Long userId = (Long) request.getAttribute("userId");
 
             boolean success = contentService.updateContentStatus(userId, contentId, status);
             if (success) {
@@ -198,6 +148,37 @@ public class ContentController {
             }
         } catch (Exception e) {
             return Result.error("更新内容状态失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 编辑内容（支持文件和字段）
+     */
+    @PutMapping("/{contentId}")
+    public Result<Content> updateContent(
+            @PathVariable Long contentId,
+            @RequestParam("contentType") Integer contentType,
+            @RequestParam("title") String title,
+            @RequestParam(value = "diary", required = false) String diary,
+            @RequestParam(value = "videoFile", required = false) MultipartFile videoFile,
+            @RequestParam(value = "imageFiles", required = false) List<MultipartFile> imageFiles,
+            @RequestParam(value = "latitude", required = false) Double latitude,
+            @RequestParam(value = "longitude", required = false) Double longitude,
+            @RequestParam(value = "location", required = false) String location,
+            HttpServletRequest request) {
+        try {
+            Long userId = (Long) request.getAttribute("userId");
+            ContentUploadRequest uploadRequest = new ContentUploadRequest();
+            uploadRequest.setContentType(contentType);
+            uploadRequest.setTitle(title);
+            uploadRequest.setDiary(diary);
+            uploadRequest.setLatitude(latitude);
+            uploadRequest.setLongitude(longitude);
+            uploadRequest.setLocation(location);
+            Content updated = contentService.updateContent(userId, contentId, uploadRequest, videoFile, imageFiles);
+            return Result.success("内容更新成功", updated);
+        } catch (Exception e) {
+            return Result.error("内容更新失败: " + e.getMessage());
         }
     }
 
@@ -229,5 +210,41 @@ public class ContentController {
         } catch (Exception e) {
             return Result.error("获取区域内容失败: " + e.getMessage());
         }
+    }
+
+    /**
+     * 点赞内容
+     */
+    @PostMapping("/{contentId}/like")
+    public Result<String> likeContent(@PathVariable Long contentId, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        if (contentService.likeContent(userId, contentId)) {
+            return Result.success("点赞成功");
+        } else {
+            return Result.error("已点赞或点赞失败");
+        }
+    }
+
+    /**
+     * 取消点赞
+     */
+    @PostMapping("/{contentId}/unlike")
+    public Result<String> unlikeContent(@PathVariable Long contentId, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        if (contentService.unlikeContent(userId, contentId)) {
+            return Result.success("取消点赞成功");
+        } else {
+            return Result.error("未点赞或取消失败");
+        }
+    }
+
+    /**
+     * 查询当前用户是否已点赞该内容
+     */
+    @GetMapping("/{contentId}/liked")
+    public Result<Boolean> hasLiked(@PathVariable Long contentId, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        boolean liked = contentService.hasLiked(userId, contentId);
+        return Result.success(liked);
     }
 } 

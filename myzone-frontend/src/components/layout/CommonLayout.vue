@@ -18,7 +18,7 @@
               <el-menu-item index="/">首页</el-menu-item>
               <!-- <el-menu-item index="/mosaic">拼图</el-menu-item> -->
               <el-menu-item index="/upload">上传内容</el-menu-item>
-              <!-- <el-menu-item index="/my-contents">我的内容</el-menu-item> -->
+              <el-menu-item index="/my-contents">我的内容</el-menu-item>
             </el-menu>
           </div>
           <div class="header-right">
@@ -35,9 +35,9 @@
                     <el-dropdown-item command="profile">
                       <el-icon><User /></el-icon>个人资料
                     </el-dropdown-item>
-                    <el-dropdown-item command="my-contents">
+                    <!-- <el-dropdown-item command="my-contents">
                       <el-icon><Document /></el-icon>我的内容
-                    </el-dropdown-item>
+                    </el-dropdown-item> -->
                     <!-- <el-dropdown-item command="upload">
                       <el-icon><Upload /></el-icon>上传内容
                     </el-dropdown-item> -->
@@ -66,8 +66,10 @@
 import { computed } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useRouter, useRoute } from 'vue-router'
-import { ElMessageBox, ElMessage } from 'element-plus'
-import { User, Document, SwitchButton } from '@element-plus/icons-vue'
+// 移除 Element Plus 组件导入，因为已经全局注册
+import { ElMessageBox, ElMessage } from '@/plugins/element-plus'
+// 只保留图标导入
+import { User, SwitchButton } from '@element-plus/icons-vue'
 
 const userStore = useUserStore()
 const router = useRouter()

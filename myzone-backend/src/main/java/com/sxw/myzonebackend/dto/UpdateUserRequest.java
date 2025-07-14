@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class UpdateUserRequest {
-
+    
     // Getters and Setters
     private String nickname;
     
@@ -31,4 +31,4 @@ public class UpdateUserRequest {
     
     private String currentPassword;
 
-}
+} 

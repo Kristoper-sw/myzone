@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS `content` (
     `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '内容ID',
     `user_id` BIGINT NOT NULL COMMENT '用户ID',
     `content_type` INT NOT NULL COMMENT '内容类型：1-短视频，2-图片，3-混合',
+    `title` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '内容标题',
     `diary` TEXT COMMENT '日记内容（可选）',
     `video_path` VARCHAR(500) COMMENT '视频文件路径',
     `image_paths` TEXT COMMENT '图片文件路径列表（JSON格式存储）',

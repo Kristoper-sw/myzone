@@ -40,6 +40,11 @@ public class Content {
     private String imagePaths;
     
     /**
+     * 内容标题（必填）
+     */
+    private String title;
+    
+    /**
      * 纬度
      */
     private Double latitude;
