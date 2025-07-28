@@ -96,7 +96,6 @@ CREATE TABLE IF NOT EXISTS `comment` (
     `parent_id` BIGINT DEFAULT NULL COMMENT '父评论ID（为NULL表示一级评论）',
     `content` TEXT NOT NULL COMMENT '评论内容',
     `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    PRIMARY KEY (`id`),
     INDEX `idx_content_id` (`content_id`),
     INDEX `idx_user_id` (`user_id`),
     INDEX `idx_parent_id` (`parent_id`),
