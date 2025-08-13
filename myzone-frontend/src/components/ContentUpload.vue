@@ -141,6 +141,7 @@ import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import { UploadFilled, Delete, Location } from '@element-plus/icons-vue'
+import { contentApi } from '@/api/content.js'
 
 const { t: $t } = useI18n()
 
@@ -261,29 +262,84 @@ const uploadContent = async () => {
   uploadProgress.value = 0
   
   try {
-    // 模拟上传进度
-    const interval = setInterval(() => {
-      uploadProgress.value += 10
-      if (uploadProgress.value >= 100) {
-        clearInterval(interval)
-        ElMessage.success($t('content.uploadSuccess'))
-        // 重置表单
-        title.value = ''
-        diary.value = ''
-        selectedVideo.value = null
-        selectedImages.value = []
-        videoPreviewUrl.value = ''
-        location.value = ''
-        uploadProgress.value = 0
-      }
-    }, 200)
+    // 创建FormData对象
+    const formData = new FormData()
+    
+    // 添加基本信息
+    formData.append('title', title.value.trim())
+    formData.append('contentType', contentType.value)
+    formData.append('diary', diary.value.trim())
+    
+    // 添加地理位置信息
+    if (latitude.value && longitude.value) {
+      formData.append('latitude', latitude.value)
+      formData.append('longitude', longitude.value)
+    }
+    
+    // 添加视频文件
+    if (selectedVideo.value) {
+      formData.append('videoFile', selectedVideo.value)
+    }
+    
+    // 添加图片文件
+    selectedImages.value.forEach((image, index) => {
+      formData.append(`imageFiles`, image.file)
+    })
+    
+    // 调用后端API
+    const response = await contentApi.uploadContent(formData)
+    
+    console.log('上传响应:', response) // 添加调试日志
+    
+    // 检查响应
+    if (response && response.code === 200) {
+      // 不在这里显示ElMessage，让父组件处理成功消息
+      // ElMessage.success($t('content.uploadSuccess'))
+      
+      // 重置表单
+      title.value = ''
+      diary.value = ''
+      selectedVideo.value = null
+      selectedImages.value = []
+      videoPreviewUrl.value = ''
+      location.value = ''
+      latitude.value = null
+      longitude.value = null
+      uploadProgress.value = 0
+      
+      // 触发上传成功事件
+      emit('upload-success')
+    } else {
+      ElMessage.error(response?.message || $t('content.uploadFailed'))
+    }
   } catch (error) {
     console.error('上传失败:', error)
-    ElMessage.error($t('content.uploadFailed'))
+    ElMessage.error(error?.message || $t('content.uploadFailed'))
   } finally {
     uploading.value = false
   }
 }
+
+// 添加emit定义
+const emit = defineEmits(['upload-success'])
+
+// 添加重置表单方法
+const resetForm = () => {
+  title.value = ''
+  diary.value = ''
+  selectedVideo.value = null
+  selectedImages.value = []
+  videoPreviewUrl.value = ''
+  location.value = ''
+  latitude.value = null
+  longitude.value = null
+  uploadProgress.value = 0
+}
+
+// 暴露resetForm方法给父组件
+defineExpose({
+  resetForm
+})
 </script>
 
 <style scoped>
