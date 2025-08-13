@@ -24,16 +24,19 @@
     </el-card>
   </div>
   <div v-else class="post-not-found">
-    <el-empty description="内容未找到">
-      <el-button type="primary" @click="$router.go(-1)">返回</el-button>
+    <el-empty :description="$t('content.contentNotFound')">
+      <el-button type="primary" @click="$router.go(-1)">{{ $t('content.back') }}</el-button>
     </el-empty>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { contentApi } from '@/api/content'
 import { getFileUrlByEnv } from '@/config'
+
+const { t: $t } = useI18n()
 
 const props = defineProps({
   postId: {

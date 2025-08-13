@@ -2,9 +2,9 @@
   <div class="mosaic-content">
     <el-card class="mosaic-header">
       <template #header>
-        <h2>文化拼图</h2>
+        <h2>{{ $t('mosaic.culturalMosaic') }}</h2>
       </template>
-      <p>探索世界各地的文化，点击卡片查看详情</p>
+      <p>{{ $t('mosaic.exploreCultures') }}</p>
     </el-card>
 
     <div class="mosaic-grid">
@@ -16,16 +16,18 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import MosaicCard from '@/components/content/MosaicCard.vue'
 
+const { t: $t } = useI18n()
 const router = useRouter()
 const mosaicItems = ref([
-  { id: 1, imageUrl: 'https://placehold.co/200x120', title: '京剧脸谱', location: '北京', cultureType: '戏剧' },
-  { id: 2, imageUrl: 'https://placehold.co/200x120', title: '和服文化', location: '东京', cultureType: '服饰' },
-  { id: 3, imageUrl: 'https://placehold.co/200x120', title: '美式涂鸦', location: '纽约', cultureType: '艺术' },
-  { id: 4, imageUrl: 'https://placehold.co/200x120', title: '法式甜点', location: '巴黎', cultureType: '美食' },
-  { id: 5, imageUrl: 'https://placehold.co/200x120', title: '非洲鼓', location: '拉各斯', cultureType: '音乐' },
-  { id: 6, imageUrl: 'https://placehold.co/200x120', title: '印度节日', location: '孟买', cultureType: '节日' }
+  { id: 1, imageUrl: 'https://placehold.co/200x120', title: $t('mosaic.pekingOpera'), location: $t('mosaic.beijing'), cultureType: $t('mosaic.drama') },
+  { id: 2, imageUrl: 'https://placehold.co/200x120', title: $t('mosaic.kimonoCulture'), location: $t('mosaic.tokyo'), cultureType: $t('mosaic.clothing') },
+  { id: 3, imageUrl: 'https://placehold.co/200x120', title: $t('mosaic.americanGraffiti'), location: $t('mosaic.newYork'), cultureType: $t('mosaic.art') },
+  { id: 4, imageUrl: 'https://placehold.co/200x120', title: $t('mosaic.frenchDesserts'), location: $t('mosaic.paris'), cultureType: $t('mosaic.food') },
+  { id: 5, imageUrl: 'https://placehold.co/200x120', title: $t('mosaic.africanDrums'), location: $t('mosaic.lagos'), cultureType: $t('mosaic.music') },
+  { id: 6, imageUrl: 'https://placehold.co/200x120', title: $t('mosaic.indianFestivals'), location: $t('mosaic.mumbai'), cultureType: $t('mosaic.festival') }
 ])
 
 function goToDetail(item) {

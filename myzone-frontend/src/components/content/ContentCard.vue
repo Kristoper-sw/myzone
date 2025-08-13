@@ -15,7 +15,7 @@
       />
       <div v-else class="no-media">
         <el-icon :size="48"><Picture /></el-icon>
-        <p>无媒体文件</p>
+        <p>{{ $t('content.noMediaFile') }}</p>
       </div>
     </div>
     
@@ -56,14 +56,17 @@
     <div class="content-actions">
       <!-- <el-button size="small" @click="$emit('view', content)">查看</el-button>
       <el-button size="small" type="primary" @click="$emit('edit', content)">编辑</el-button> -->
-      <el-button size="small" type="danger" @click="$emit('delete', content)">删除</el-button>
+      <el-button size="small" type="danger" @click="$emit('delete', content)">{{ $t('common.delete') }}</el-button>
     </div>
   </div>
 </template>
 
 <script setup>
 import { Picture, Location } from '@element-plus/icons-vue'
+import { useI18n } from 'vue-i18n'
 import { getFileUrlByEnv } from '@/config'
+
+const { t: $t } = useI18n()
 
 // 定义props
 defineProps({
@@ -100,10 +103,10 @@ const getContentTypeTag = (type) => {
 // 获取内容类型文本
 const getContentTypeText = (type) => {
   switch (type) {
-    case 1: return '短视频'
-    case 2: return '图片'
-    case 3: return '混合'
-    default: return '未知'
+    case 1: return $t('content.video')
+    case 2: return $t('content.image')
+    case 3: return $t('content.mixed')
+    default: return $t('content.unknown')
   }
 }
 
@@ -120,10 +123,10 @@ const getStatusTag = (status) => {
 // 获取状态文本
 const getStatusText = (status) => {
   switch (status) {
-    case 0: return '草稿'
-    case 1: return '已发布'
-    case 2: return '已删除'
-    default: return '未知'
+    case 0: return $t('content.draft')
+    case 1: return $t('content.published')
+    case 2: return $t('content.deleted')
+    default: return $t('content.unknown')
   }
 }
 

@@ -29,19 +29,19 @@ defineProps({
   },
   title: {
     type: String,
-    default: '操作成功！'
+    default: ''
   },
   message: {
     type: String,
-    default: '操作已完成'
+    default: ''
   },
   primaryActionText: {
     type: String,
-    default: '确定'
+    default: ''
   },
   secondaryActionText: {
     type: String,
-    default: '取消'
+    default: ''
   }
 })
 

@@ -9,10 +9,10 @@
     </el-avatar>
     <div class="avatar-actions">
       <el-button type="primary" @click="handleAvatarUpload">
-        更换头像
+        {{ $t('user.changeAvatar') }}
       </el-button>
       <el-button @click="removeAvatar" v-if="modelValue && modelValue.trim()">
-        移除头像
+        {{ $t('user.removeAvatar') }}
       </el-button>
     </div>
   </div>
@@ -20,7 +20,10 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ElMessageBox } from 'element-plus'
+
+const { t: $t } = useI18n()
 
 // 定义props
 const props = defineProps({
@@ -54,9 +57,9 @@ const avatarUrl = computed(() => {
 
 // 头像上传
 const handleAvatarUpload = () => {
-  ElMessageBox.prompt('请输入头像URL', '上传头像', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  ElMessageBox.prompt($t('user.enterAvatarUrl'), $t('user.uploadAvatarTitle'), {
+    confirmButtonText: $t('common.confirm'),
+    cancelButtonText: $t('common.cancel'),
     inputValue: props.modelValue || ''
   }).then(({ value }) => {
     if (value) {

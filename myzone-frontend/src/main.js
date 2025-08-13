@@ -5,9 +5,11 @@ import router from './router'
 // import 'mapbox-gl/dist/mapbox-gl.css'
 // 导入Element Plus插件
 import ElementPlus from './plugins/element-plus'
+import i18n from './i18n'
 import './assets/styles/global.css'
 
 const app = createApp(App)
 app.use(router)
 app.use(ElementPlus)
+app.use(i18n)
 app.mount('#app')

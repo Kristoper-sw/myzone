@@ -2,38 +2,41 @@
   <div class="filter-section">
     <el-select 
       v-model="filterType" 
-      placeholder="内容类型" 
+      :placeholder="$t('content.contentType')" 
       @change="handleTypeChange"
       clearable
     >
-      <el-option label="全部" value="" />
-      <el-option label="短视频" value="1" />
-      <el-option label="图片" value="2" />
-      <el-option label="混合" value="3" />
+      <el-option :label="$t('content.all')" value="" />
+      <el-option :label="$t('content.video')" value="1" />
+      <el-option :label="$t('content.image')" value="2" />
+      <el-option :label="$t('content.mixed')" value="3" />
     </el-select>
     
     <el-select 
       v-model="filterStatus" 
-      placeholder="状态" 
+      :placeholder="$t('content.status')" 
       @change="handleStatusChange"
       clearable
     >
-      <el-option label="全部" value="" />
-      <el-option label="已发布" value="1" />
-      <el-option label="草稿" value="0" />
-      <el-option label="已删除" value="2" />
+      <el-option :label="$t('content.all')" value="" />
+      <el-option :label="$t('content.published')" value="1" />
+      <el-option :label="$t('content.draft')" value="0" />
+      <el-option :label="$t('content.deleted')" value="2" />
     </el-select>
     
     <el-button type="primary" @click="$router.push('/upload')">
       <el-icon><Plus /></el-icon>
-      上传新内容
+      {{ $t('content.uploadNewContent') }}
     </el-button>
   </div>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Plus } from '@element-plus/icons-vue'
+
+const { t: $t } = useI18n()
 
 // 定义props
 const props = defineProps({

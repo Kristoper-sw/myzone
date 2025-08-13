@@ -2,8 +2,8 @@
   <div class="auth-container">
     <div class="auth-card">
       <div class="auth-card-header">
-        <h2>{{ isLogin ? '用户登录' : '用户注册' }}</h2>
-        <p>{{ isLogin ? '欢迎回来！请输入账号和密码' : '欢迎加入！请填写注册信息' }}</p>
+        <h2>{{ isLogin ? $t('auth.login') : $t('auth.register') }}</h2>
+        <p>{{ isLogin ? $t('auth.loginWelcome') : $t('auth.registerWelcome') }}</p>
       </div>
 
       <el-form
@@ -17,7 +17,7 @@
         <el-form-item prop="username">
           <el-input
             v-model="form.username"
-            placeholder="用户名"
+            :placeholder="$t('auth.username')"
             :prefix-icon="User"
             size="large"
           />
@@ -27,7 +27,7 @@
           <el-input
             v-model="form.password"
             type="password"
-            placeholder="密码"
+            :placeholder="$t('auth.password')"
             :prefix-icon="Lock"
             size="large"
             show-password
@@ -38,7 +38,7 @@
           <el-input
             v-model="form.confirmPassword"
             type="password"
-            placeholder="确认密码"
+            :placeholder="$t('auth.confirmPassword')"
             :prefix-icon="Lock"
             size="large"
             show-password
@@ -48,7 +48,7 @@
         <el-form-item v-if="!isLogin" prop="email">
           <el-input
             v-model="form.email"
-            placeholder="邮箱（可选）"
+            :placeholder="$t('auth.email')"
             :prefix-icon="Message"
             size="large"
           />
@@ -57,7 +57,7 @@
         <el-form-item v-if="!isLogin" prop="nickname">
           <el-input
             v-model="form.nickname"
-            placeholder="昵称（可选）"
+            :placeholder="$t('auth.nickname')"
             :prefix-icon="UserFilled"
             size="large"
           />
@@ -71,15 +71,15 @@
             :loading="loading"
             @click="handleSubmit"
           >
-            {{ loading ? (isLogin ? '登录中...' : '注册中...') : (isLogin ? '登录' : '注册') }}
+            {{ loading ? (isLogin ? $t('auth.loggingIn') : $t('auth.registering')) : (isLogin ? $t('auth.loginButton') : $t('auth.registerButton')) }}
           </el-button>
         </el-form-item>
 
         <div class="auth-link">
-          <span v-if="isLogin">还没有账号？</span>
-          <span v-else>已有账号？</span>
+          <span v-if="isLogin">{{ $t('auth.noAccount') }}</span>
+          <span v-else>{{ $t('auth.hasAccount') }}</span>
           <router-link :to="isLogin ? '/register' : '/login'">
-            {{ isLogin ? '注册' : '登录' }}
+            {{ isLogin ? $t('nav.register') : $t('nav.login') }}
           </router-link>
         </div>
       </el-form>
@@ -89,6 +89,7 @@
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { User, Lock, Message, UserFilled } from '@element-plus/icons-vue'
@@ -102,6 +103,7 @@ const props = defineProps({
   }
 })
 
+const { t: $t } = useI18n()
 const router = useRouter()
 const userStore = useUserStore()
 const formRef = ref()
@@ -120,9 +122,9 @@ const form = reactive({
 const validateConfirmPassword = (rule, value, callback) => {
   if (!isLogin.value) {
     if (value === '') {
-      callback(new Error('请再次输入密码'))
+      callback(new Error($t('validation.confirmPasswordRequired')))
     } else if (value !== form.password) {
-      callback(new Error('两次输入密码不一致!'))
+      callback(new Error($t('validation.passwordMismatch')))
     } else {
       callback()
     }
@@ -135,7 +137,7 @@ const validateEmail = (rule, value, callback) => {
   if (!isLogin.value && value !== '') {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(value)) {
-      callback(new Error('请输入正确的邮箱格式'))
+      callback(new Error($t('validation.emailFormat')))
     } else {
       callback()
     }
@@ -146,12 +148,12 @@ const validateEmail = (rule, value, callback) => {
 
 const rules = computed(() => ({
   username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 3, max: 20, message: '用户名长度在 3 到 20 个字符', trigger: 'blur' }
+    { required: true, message: $t('validation.required', { field: $t('auth.username') }), trigger: 'blur' },
+    { min: 3, max: 20, message: $t('validation.minLength', { field: $t('auth.username'), min: 3, max: 20 }), trigger: 'blur' }
   ],
   password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' }
+    { required: true, message: $t('validation.required', { field: $t('auth.password') }), trigger: 'blur' },
+    { min: 6, max: 20, message: $t('validation.minLength', { field: $t('auth.password'), min: 6, max: 20 }), trigger: 'blur' }
   ],
   confirmPassword: [
     { required: !isLogin.value, validator: validateConfirmPassword, trigger: 'blur' }
@@ -175,10 +177,10 @@ const handleSubmit = async () => {
       })
 
       if (result.success) {
-        ElMessage.success('登录成功！')
+        ElMessage.success($t('auth.loginSuccess'))
         router.push('/')
       } else {
-        ElMessage.error(result.message || '登录失败')
+        ElMessage.error(result.message || $t('auth.loginFailed'))
       }
     } else {
       const registerData = {
@@ -192,15 +194,15 @@ const handleSubmit = async () => {
       const result = await userStore.register(registerData)
 
       if (result.success) {
-        ElMessage.success('注册成功！请登录')
+        ElMessage.success($t('auth.registerSuccess'))
         router.push('/login')
       } else {
-        ElMessage.error(result.message || '注册失败')
+        ElMessage.error(result.message || $t('auth.registerFailed'))
       }
     }
   } catch (error) {
     console.error(isLogin.value ? '登录错误:' : '注册错误:', error)
-    ElMessage.error(error.message || (isLogin.value ? '登录失败，请重试' : '注册失败，请重试'))
+    ElMessage.error(error.message || (isLogin.value ? $t('auth.loginFailed') : $t('auth.registerFailed')))
   } finally {
     loading.value = false
   }

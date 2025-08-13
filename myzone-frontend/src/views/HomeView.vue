@@ -7,7 +7,7 @@
       <template #fallback>
         <div class="map-loading">
           <div class="loading-spinner"></div>
-          <p>地图加载中...</p>
+          <p>{{ $t('map.loading') }}</p>
         </div>
       </template>
     </Suspense>
@@ -16,8 +16,10 @@
 
 <script setup>
 import { defineAsyncComponent } from 'vue'
+import { useI18n } from 'vue-i18n'
 // 使用动态导入实现懒加载
 const MapComponent = defineAsyncComponent(() => import('@/components/MapComponent.vue'))
+const { t: $t } = useI18n()
 </script>
 
 <style scoped>

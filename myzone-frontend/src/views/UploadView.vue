@@ -2,18 +2,18 @@
   <div class="upload-view">
     <el-card class="upload-card-page" shadow="hover">
       <template #header>
-        <h2>上传内容</h2>
-        <p class="subtitle">分享你的精彩时刻，支持短视频、图片或混合上传</p>
+        <h2>{{ $t('content.uploadContent') }}</h2>
+        <p class="subtitle">{{ $t('content.uploadDescription') }}</p>
       </template>
       <ContentUpload ref="contentUpload" @upload-success="handleUploadSuccess" />
       <el-divider />
       <!-- 上传成功提示 -->
       <SuccessMessage
         :visible="showSuccessMessage"
-        title="上传成功！"
-        message="你的内容已经成功发布，快去查看吧！"
-        primary-action-text="查看我的内容"
-        secondary-action-text="继续上传"
+        :title="$t('content.uploadSuccessTitle')"
+        :message="$t('content.uploadSuccessMessage')"
+        :primary-action-text="$t('content.viewMyContents')"
+        :secondary-action-text="$t('content.continueUpload')"
         @primary-action="goToProfile"
         @secondary-action="continueUpload"
       />
@@ -24,9 +24,11 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import ContentUpload from '@/components/ContentUpload.vue'
 import SuccessMessage from '@/components/common/SuccessMessage.vue'
 
+const { t: $t } = useI18n()
 const router = useRouter()
 const contentUpload = ref()
 const showSuccessMessage = ref(false)

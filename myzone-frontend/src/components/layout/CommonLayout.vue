@@ -15,13 +15,14 @@
               class="nav-menu"
               :ellipsis="false"
             >
-              <el-menu-item index="/">首页</el-menu-item>
-              <!-- <el-menu-item index="/mosaic">拼图</el-menu-item> -->
-              <el-menu-item index="/upload">上传内容</el-menu-item>
-              <el-menu-item index="/my-contents">我的内容</el-menu-item>
+              <el-menu-item index="/">{{ $t('nav.home') }}</el-menu-item>
+              <!-- <el-menu-item index="/mosaic">{{ $t('nav.mosaic') }}</el-menu-item> -->
+              <el-menu-item index="/upload">{{ $t('nav.upload') }}</el-menu-item>
+              <el-menu-item index="/my-contents">{{ $t('nav.myContents') }}</el-menu-item>
             </el-menu>
           </div>
           <div class="header-right">
+            <LanguageSwitcher />
             <template v-if="isLoggedIn">
               <el-dropdown @command="handleCommand" trigger="click">
                 <div class="user-info">
@@ -33,24 +34,24 @@
                 <template #dropdown>
                   <el-dropdown-menu>
                     <el-dropdown-item command="profile">
-                      <el-icon><User /></el-icon>个人资料
+                      <el-icon><User /></el-icon>{{ $t('nav.profile') }}
                     </el-dropdown-item>
                     <!-- <el-dropdown-item command="my-contents">
-                      <el-icon><Document /></el-icon>我的内容
+                      <el-icon><Document /></el-icon>{{ $t('nav.myContents') }}
                     </el-dropdown-item> -->
                     <!-- <el-dropdown-item command="upload">
-                      <el-icon><Upload /></el-icon>上传内容
+                      <el-icon><Upload /></el-icon>{{ $t('nav.upload') }}
                     </el-dropdown-item> -->
                     <el-dropdown-item divided command="logout">
-                      <el-icon><SwitchButton /></el-icon>退出登录
+                      <el-icon><SwitchButton /></el-icon>{{ $t('nav.logout') }}
                     </el-dropdown-item>
                   </el-dropdown-menu>
                 </template>
               </el-dropdown>
             </template>
             <template v-else>
-              <el-button type="primary" @click="$router.push('/login')">登录</el-button>
-              <el-button type="danger" @click="$router.push('/register')">注册</el-button>
+              <el-button type="primary" @click="$router.push('/login')">{{ $t('nav.login') }}</el-button>
+              <el-button type="danger" @click="$router.push('/register')">{{ $t('nav.register') }}</el-button>
             </template>
           </div>
         </div>
@@ -64,13 +65,16 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/stores/user'
 import { useRouter, useRoute } from 'vue-router'
 // 移除 Element Plus 组件导入，因为已经全局注册
 import { ElMessageBox, ElMessage } from '@/plugins/element-plus'
 // 只保留图标导入
 import { User, SwitchButton } from '@element-plus/icons-vue'
+import LanguageSwitcher from '@/components/common/LanguageSwitcher.vue'
 
+const { t: $t } = useI18n()
 const userStore = useUserStore()
 const router = useRouter()
 const route = useRoute()
@@ -110,17 +114,17 @@ const handleCommand = async (command) => {
     case 'logout':
       try {
         await ElMessageBox.confirm(
-          '确定要退出登录吗？',
-          '提示',
+          $t('auth.logoutConfirm'),
+          $t('common.info'),
           {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
+            confirmButtonText: $t('common.confirm'),
+            cancelButtonText: $t('common.cancel'),
             type: 'warning',
           }
         )
         userStore.logout()
         router.push('/login')
-        ElMessage.success('已退出登录')
+        ElMessage.success($t('auth.logoutSuccess'))
       } catch {
         // 用户取消
       }

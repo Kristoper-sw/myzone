@@ -2,57 +2,57 @@
   <div class="profile-content">
     <el-card class="profile-card" shadow="hover">
       <template #header>
-        <h2>个人资料</h2>
-        <p class="subtitle">管理你的个人信息和账户设置</p>
+        <h2>{{ $t('user.profile') }}</h2>
+        <p class="subtitle">{{ $t('user.profileDescription') }}</p>
       </template>
       <!-- 基本信息表单 -->
       <el-form :model="infoForm" :rules="infoRules" ref="infoFormRef" label-width="100px" class="profile-form">
         <div class="profile-section">
-          <h3>基本信息</h3>
+          <h3>{{ $t('user.basicInfo') }}</h3>
           <div class="section-content">
-            <el-form-item label="头像">
+            <el-form-item :label="$t('user.avatar')">
               <AvatarUpload v-model="infoForm.avatar" :username="infoForm.username" :nickname="infoForm.nickname" />
             </el-form-item>
-            <el-form-item label="用户名">
+            <el-form-item :label="$t('user.username')">
               <el-input v-model="infoForm.username" disabled />
             </el-form-item>
-            <el-form-item label="昵称" prop="nickname">
+            <el-form-item :label="$t('user.nickname')" prop="nickname">
               <el-input v-model="infoForm.nickname" maxlength="20" show-word-limit />
             </el-form-item>
-            <el-form-item label="邮箱" prop="email">
+            <el-form-item :label="$t('user.email')" prop="email">
               <el-input v-model="infoForm.email" maxlength="100" />
             </el-form-item>
-            <el-form-item label="手机号" prop="phone">
+            <el-form-item :label="$t('user.phone')" prop="phone">
               <el-input v-model="infoForm.phone" maxlength="20" />
             </el-form-item>
-            <el-form-item label="注册时间">
+            <el-form-item :label="$t('user.registerTime')">
               <el-input :value="formatDate(infoForm.createTime)" disabled />
             </el-form-item>
           </div>
         </div>
         <el-form-item>
-          <el-button type="primary" @click="onSaveInfo" :loading="savingInfo">保存基本信息</el-button>
+          <el-button type="primary" @click="onSaveInfo" :loading="savingInfo">{{ $t('user.saveBasicInfo') }}</el-button>
         </el-form-item>
       </el-form>
       <el-divider></el-divider>
       <!-- 密码修改表单 -->
       <el-form :model="pwdForm" :rules="pwdRules" ref="pwdFormRef" label-width="100px" class="profile-form">
         <div class="profile-section">
-          <h3>修改密码</h3>
+          <h3>{{ $t('user.changePassword') }}</h3>
           <div class="section-content">
-            <el-form-item label="当前密码" prop="currentPassword">
+            <el-form-item :label="$t('user.currentPassword')" prop="currentPassword">
               <el-input v-model="pwdForm.currentPassword" type="password" show-password autocomplete="off" />
             </el-form-item>
-            <el-form-item label="新密码" prop="newPassword">
+            <el-form-item :label="$t('user.newPassword')" prop="newPassword">
               <el-input v-model="pwdForm.newPassword" type="password" show-password autocomplete="off" />
             </el-form-item>
-            <el-form-item label="确认新密码" prop="confirmPassword">
+            <el-form-item :label="$t('user.confirmNewPassword')" prop="confirmPassword">
               <el-input v-model="pwdForm.confirmPassword" type="password" show-password autocomplete="off" />
             </el-form-item>
           </div>
         </div>
         <el-form-item>
-          <el-button type="primary" @click="onSavePwd" :loading="savingPwd">修改密码</el-button>
+          <el-button type="primary" @click="onSavePwd" :loading="savingPwd">{{ $t('user.changePasswordButton') }}</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -62,10 +62,12 @@
 <script setup>
 import { ref, reactive, watch } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/stores/user'
 import { userAPI } from '@/api/user'
 import AvatarUpload from '@/components/profile/AvatarUpload.vue'
 
+const { t: $t } = useI18n()
 const userStore = useUserStore()
 const { currentUser, refreshUserInfo } = userStore
 const infoFormRef = ref()
@@ -109,36 +111,36 @@ watch(
 
 const infoRules = {
   nickname: [
-    { required: true, message: '昵称不能为空', trigger: 'blur' },
-    { min: 2, max: 20, message: '昵称长度必须在2-20个字符之间', trigger: 'blur' }
+    { required: true, message: $t('validation.nicknameRequired'), trigger: 'blur' },
+    { min: 2, max: 20, message: $t('validation.nicknameLength'), trigger: 'blur' }
   ],
   email: [
-    { type: 'email', message: '邮箱格式不正确', trigger: 'blur' }
+    { type: 'email', message: $t('validation.emailFormatInvalid'), trigger: 'blur' }
   ],
   phone: [
-    { min: 0, max: 20, message: '手机号长度不能超过20个字符', trigger: 'blur' }
+    { min: 0, max: 20, message: $t('validation.phoneLength'), trigger: 'blur' }
   ]
 }
 
 const pwdRules = {
   currentPassword: [
-    { required: true, message: '请输入当前密码', trigger: 'blur' }
+    { required: true, message: $t('validation.currentPasswordRequired'), trigger: 'blur' }
   ],
   newPassword: [
-    { required: true, message: '请输入新密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '密码长度必须在6-20个字符之间', trigger: 'blur' }
+    { required: true, message: $t('validation.newPasswordRequired'), trigger: 'blur' },
+    { min: 6, max: 20, message: $t('validation.newPasswordLength'), trigger: 'blur' }
   ],
-  confirmPassword: [
-    { required: true, message: '请再次输入新密码', trigger: 'blur' },
+      confirmPassword: [
+      { required: true, message: $t('validation.confirmNewPasswordRequired'), trigger: 'blur' },
     { validator: (rule, value, callback) => {
-      if (value !== pwdForm.newPassword) return callback(new Error('两次输入的新密码不一致'))
+      if (value !== pwdForm.newPassword) return callback(new Error($t('validation.passwordMismatchError')))
       callback()
     }, trigger: 'blur' }
   ]
 }
 
 function formatDate(dateString) {
-  if (!dateString) return '未知'
+  if (!dateString) return $t('user.unknown')
   return new Date(dateString).toLocaleDateString('zh-CN')
 }
 
@@ -155,13 +157,13 @@ const onSaveInfo = () => {
       }
       const res = await userAPI.updateUserInfo(payload)
       if (res.code === 200) {
-        ElMessage.success('资料已更新')
+        ElMessage.success($t('user.profileUpdated'))
         await refreshUserInfo()
       } else {
-        ElMessage.error(res.message || '更新失败')
+        ElMessage.error(res.message || $t('user.updateFailed'))
       }
     } catch (e) {
-      ElMessage.error(e.message || '更新失败')
+      ElMessage.error(e.message || $t('user.updateFailed'))
     } finally {
       savingInfo.value = false
     }
@@ -180,16 +182,16 @@ const onSavePwd = () => {
       }
       const res = await userAPI.updateUserInfo(payload)
       if (res.code === 200) {
-        ElMessage.success('密码修改成功')
+        ElMessage.success($t('user.passwordChanged'))
         await refreshUserInfo()
         pwdForm.currentPassword = ''
         pwdForm.newPassword = ''
         pwdForm.confirmPassword = ''
       } else {
-        ElMessage.error(res.message || '修改失败')
+        ElMessage.error(res.message || $t('user.changeFailed'))
       }
     } catch (e) {
-      ElMessage.error(e.message || '修改失败')
+      ElMessage.error(e.message || $t('user.changeFailed'))
     } finally {
       savingPwd.value = false
     }

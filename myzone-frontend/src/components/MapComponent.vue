@@ -1,6 +1,6 @@
 <template>
   <div id="map" class="mapbox-absolute"></div>
-  <button class="xh-reset-btn-fab" @click="handleResetClick" title="原始视图">
+  <button class="xh-reset-btn-fab" @click="handleResetClick" :title="$t('comment.originalView')">
     <el-icon :size="28" color="rgb(66, 134, 244)">
       <HomeFilled />
     </el-icon>
@@ -15,7 +15,7 @@
             <img v-else :src="media.url" style="width:100%;height:100%;object-fit:cover;" />
           </el-carousel-item>
         </el-carousel>
-        <div v-else class="no-media">无媒体内容</div>
+        <div v-else class="no-media">{{ $t('comment.noMediaContent') }}</div>
       </div>
       <div class="xh-popup-content-col">
         <div class="xh-popup-header-xhs">
@@ -43,56 +43,56 @@
         <!-- 评论区 -->
         <div class="xh-comment-section">
           <div class="xh-comment-input">
-            <el-input v-model="commentInput" placeholder="说点什么..." maxlength="200" show-word-limit @keyup.enter="handleAddComment" />
-            <el-button type="primary" size="small" @click="handleAddComment" :loading="commentLoading" style="margin-left:8px;">评论</el-button>
+            <el-input v-model="commentInput" :placeholder="$t('comment.saySomething')" maxlength="200" show-word-limit @keyup.enter="handleAddComment" />
+            <el-button type="primary" size="small" @click="handleAddComment" :loading="commentLoading" style="margin-left:8px;">{{ $t('comment.comment') }}</el-button>
           </div>
           <div class="xh-comment-list" ref="commentListRef" @scroll="onCommentScroll">
             <div v-for="comment in commentList" :key="comment.id" class="xh-comment-item">
               <div class="xh-comment-main">
                 <img :src="comment.user?.avatar || defaultAvatar" class="xh-comment-avatar" />
-                <span class="xh-comment-user">{{ comment.user?.nickname || comment.user?.username || '用户' }}</span>
+                <span class="xh-comment-user">{{ comment.user?.nickname || comment.user?.username || $t('comment.user') }}</span>
                 <span class="xh-comment-content">{{ comment.content }}</span>
                 <span class="xh-comment-time">{{ formatTime(comment.createTime) }}</span>
-                <el-button text size="small" @click="replyVisible[comment.id]=!replyVisible[comment.id]">{{ replyVisible[comment.id] ? '收起回复' : '回复' }}</el-button>
+                <el-button text size="small" @click="replyVisible[comment.id]=!replyVisible[comment.id]">{{ replyVisible[comment.id] ? $t('comment.collapseReply') : $t('comment.reply') }}</el-button>
                 <el-button
                   v-if="comment.user?.userId && currentUser?.userId === comment.user.userId && deleteConfirmId !== comment.id"
                   text size="small"
                   @click="deleteConfirmId = comment.id"
-                >删除</el-button>
+                >{{ $t('comment.delete') }}</el-button>
                 <span v-if="deleteConfirmId === comment.id">
-                  <el-button text size="small" @click="handleDeleteComment(comment.id, false)">确认删除</el-button>
-                  <el-button text size="small" @click="deleteConfirmId = null">取消</el-button>
+                  <el-button text size="small" @click="handleDeleteComment(comment.id, false)">{{ $t('comment.confirmDelete') }}</el-button>
+                  <el-button text size="small" @click="deleteConfirmId = null">{{ $t('comment.cancel') }}</el-button>
                 </span>
               </div>
               <div v-if="replyVisible[comment.id]" class="xh-reply-box">
-                <el-input v-model="replyInput[comment.id]" placeholder="回复..." size="small" maxlength="200" show-word-limit @keyup.enter="() => handleReply(comment.id)" />
-                <el-button type="primary" size="small" @click="() => handleReply(comment.id)" :loading="repliesLoading[comment.id]" style="margin-left:8px;">发送</el-button>
+                <el-input v-model="replyInput[comment.id]" :placeholder="$t('comment.replyPlaceholder')" size="small" maxlength="200" show-word-limit @keyup.enter="() => handleReply(comment.id)" />
+                <el-button type="primary" size="small" @click="() => handleReply(comment.id)" :loading="repliesLoading[comment.id]" style="margin-left:8px;">{{ $t('comment.send') }}</el-button>
               </div>
               <div v-if="comment.replyCount > 0">
                 <div class="xh-reply-fold-bar" @click="toggleReplies(comment.id)">
-                  <span>{{ repliesVisible[comment.id] ? '收起回复' : `展开${comment.replyCount}条回复` }}</span>
+                  <span>{{ repliesVisible[comment.id] ? $t('comment.collapseReplies') : $t('comment.expandReplies', { count: comment.replyCount }) }}</span>
                 </div>
                 <div v-if="repliesVisible[comment.id]" class="xh-reply-list">
                   <div v-for="reply in replies[comment.id]" :key="reply.id" class="xh-reply-item">
                     <img :src="reply.user?.avatar || defaultAvatar" class="xh-comment-avatar" />
-                    <span class="xh-comment-user">{{ reply.user?.nickname || reply.user?.username || '用户' }}</span>
+                    <span class="xh-comment-user">{{ reply.user?.nickname || reply.user?.username || $t('comment.user') }}</span>
                     <span class="xh-comment-content">{{ reply.content }}</span>
                     <span class="xh-comment-time">{{ formatTime(reply.createTime) }}</span>
                     <el-button
                       v-if="reply.user?.userId && currentUser?.userId === reply.user.userId && deleteConfirmId !== reply.id"
                       text size="small"
                       @click="deleteConfirmId = reply.id"
-                    >删除</el-button>
+                    >{{ $t('comment.delete') }}</el-button>
                     <span v-if="deleteConfirmId === reply.id">
-                      <el-button text size="small" type="danger" @click="handleDeleteComment(reply.id, true, comment.id)">确认删除</el-button>
-                      <el-button text size="small" @click="deleteConfirmId = null">取消</el-button>
+                      <el-button text size="small" type="danger" @click="handleDeleteComment(reply.id, true, comment.id)">{{ $t('comment.confirmDelete') }}</el-button>
+                      <el-button text size="small" @click="deleteConfirmId = null">{{ $t('comment.cancel') }}</el-button>
                     </span>
                   </div>
                 </div>
               </div>
             </div>
-            <div v-if="commentLoading" class="xh-comment-loading">加载中...</div>
-            <div v-if="!hasMoreComments && commentList.length > 0" class="xh-comment-end">没有更多评论了</div>
+            <div v-if="commentLoading" class="xh-comment-loading">{{ $t('comment.loading') }}</div>
+            <div v-if="!hasMoreComments && commentList.length > 0" class="xh-comment-end">{{ $t('comment.noMoreComments') }}</div>
           </div>
         </div>
       </div>
@@ -102,6 +102,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 // 移除同步导入的mapbox-gl
 // import mapboxgl from 'mapbox-gl'
 import { ElIcon, ElMessage } from 'element-plus'
@@ -110,6 +111,8 @@ import { contentApi } from '@/api/content'
 import { commentApi } from '@/api/comment'
 import { useUserStore } from '@/stores/user'
 import { getFileUrlByEnv } from '@/config'
+
+const { t: $t } = useI18n()
 
 let map
 let mapboxgl = null // 动态加载的mapbox-gl
@@ -154,7 +157,7 @@ const loadMapboxGL = async () => {
     return mapboxgl
   } catch (error) {
     console.error('加载Mapbox失败:', error)
-    ElMessage.error('地图加载失败，请刷新页面重试')
+    ElMessage.error($t('errors.mapLoadFailed'))
     throw error
   }
 }
@@ -169,15 +172,15 @@ const handleLike = async () => {
       await contentApi.likeContent(currentPost.value.id)
       currentPost.value.likes = (currentPost.value.likes || 0) + 1
       currentPost.value._liked = true
-      ElMessage.success('点赞成功')
+      ElMessage.success($t('content.likeSuccess'))
     } else {
       await contentApi.unlikeContent(currentPost.value.id)
       currentPost.value.likes = (currentPost.value.likes || 1) - 1
       currentPost.value._liked = false
-      ElMessage.success('已取消点赞')
+      ElMessage.success($t('content.unlikeSuccess'))
     }
   } catch (e) {
-    ElMessage.error(e.message || '操作失败')
+    ElMessage.error(e.message || $t('errors.operationFailed'))
   } finally {
     likeLoading.value = false
   }
@@ -258,7 +261,7 @@ const addMarkersToMap = () => {
     el.style.boxShadow = '0 2px 8px #0003'
     el.style.cursor = 'pointer'
     el.style.borderRadius = '10px'
-    el.title = item.title || '内容'
+    el.title = item.title || $t('content.title')
 
     el.addEventListener('click', async () => {
       map.flyTo({

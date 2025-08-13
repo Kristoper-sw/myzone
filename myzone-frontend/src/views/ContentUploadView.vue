@@ -2,16 +2,19 @@
   <div class="upload-content">
     <el-card class="upload-header">
       <template #header>
-        <h2>上传内容</h2>
+        <h2>{{ $t('content.uploadContent') }}</h2>
       </template>
-      <p>分享你的精彩时刻，上传图片和视频内容</p>
+      <p>{{ $t('content.uploadContent') }}</p>
       <ContentUpload />
     </el-card>
   </div>
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n'
 import ContentUpload from '@/components/ContentUpload.vue'
+
+const { t: $t } = useI18n()
 </script>
 
 <style scoped>

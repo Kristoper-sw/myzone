@@ -2,8 +2,8 @@
   <div class="my-contents-content">
     <el-card class="contents-card" shadow="hover">
       <template #header>
-        <h2>我的内容</h2>
-        <p class="subtitle">管理你上传的所有内容</p>
+        <h2>{{ $t('content.myContents') }}</h2>
+        <p class="subtitle">{{ $t('content.myContents') }}</p>
       </template>
 
       <ContentFilter @filter-change="handleFilterChange" />
@@ -30,7 +30,7 @@
       </div>
 
       <!-- 空状态 -->
-      <el-empty v-else description="暂无内容" />
+      <el-empty v-else :description="$t('content.noContents')" />
 
       <!-- 分页 -->
       <div v-if="!loading && total > 0" class="pagination-container">
@@ -50,6 +50,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import ContentCard from '@/components/content/ContentCard.vue'
@@ -57,6 +58,7 @@ import ContentFilter from '@/components/content/ContentFilter.vue'
 import { contentApi } from '@/api/content'
 import { useUserStore } from '@/stores/user'
 
+const { t: $t } = useI18n()
 const router = useRouter()
 const { currentUser } = useUserStore()
 
@@ -112,7 +114,7 @@ const filteredContents = computed(() => {
 const fetchUserContents = async () => {
   if (!currentUser.value?.userId) {
     console.log(currentUser.value)
-    ElMessage.error('用户信息获取失败')
+    ElMessage.error($t('errors.userInfoFailed'))
     return
   }
 
@@ -129,11 +131,11 @@ const fetchUserContents = async () => {
       contents.value = response.data.data || []
       total.value = response.data.total || 0
     } else {
-      ElMessage.error(response.message || '获取内容失败')
+      ElMessage.error(response.message || $t('errors.getContentFailed'))
     }
   } catch (error) {
     console.error('获取用户内容失败:', error)
-    ElMessage.error(error.message || '获取内容失败')
+    ElMessage.error(error.message || $t('errors.getContentFailed'))
   } finally {
     loading.value = false
   }
@@ -171,27 +173,27 @@ function goToEdit(content) {
 const handleDelete = async (content) => {
   try {
     await ElMessageBox.confirm(
-      '确定要删除这个内容吗？删除后无法恢复。',
-      '确认删除',
+      $t('content.deleteConfirm'),
+      $t('common.confirm'),
       {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+        confirmButtonText: $t('common.confirm'),
+        cancelButtonText: $t('common.cancel'),
         type: 'warning'
       }
     )
 
     const response = await contentApi.deleteContent(content.id)
     if (response.code === 200) {
-      ElMessage.success('删除成功')
+      ElMessage.success($t('content.deleteSuccess'))
       // 重新获取数据
       await fetchUserContents()
     } else {
-      ElMessage.error(response.message || '删除失败')
+      ElMessage.error(response.message || $t('content.deleteFailed'))
     }
   } catch (error) {
     if (error !== 'cancel') {
       console.error('删除内容失败:', error)
-      ElMessage.error(error.message || '删除失败')
+      ElMessage.error(error.message || $t('errors.deleteContentFailed'))
     }
   }
 }
