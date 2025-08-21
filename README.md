@@ -1,8 +1,153 @@
-# MyZone 项目
+# MyZone Project | MyZone 项目
+
+[English](#english) | [中文](#chinese)
+
+---
+
+## English
+
+A modern web application project based on Spring Boot + Vue.js.
+
+### Project Structure
+
+```
+final_project/
+├── myzone-backend/          # Backend project (Spring Boot)
+├── myzone-frontend/         # Frontend project (Vue.js)
+├── start.bat               # Windows startup script
+└── README.md               # Project documentation
+```
+
+### Technology Stack
+
+#### Backend
+- **Spring Boot 3.4.8**: Main framework
+- **MyBatis 3.0.4**: ORM framework
+- **MySQL**: Database
+- **JWT**: Authentication
+- **BCrypt**: Password encryption
+
+#### Frontend
+- **Vue 3**: Frontend framework
+- **Element Plus**: UI component library
+- **Vue Router**: Route management
+- **Axios**: HTTP client
+
+### Quick Start
+
+#### Method 1: Using Startup Script (Recommended)
+
+1. Ensure you have the necessary environment installed:
+   - JDK 17+
+   - Node.js 16+
+   - MySQL 8.0+
+   - Maven 3.6+
+
+2. Configure the database:
+   ```sql
+   -- Create database
+   CREATE DATABASE myzone DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   
+   -- Execute initialization script
+   -- Run myzone-backend/src/main/resources/sql/init.sql
+   ```
+
+3. Modify database configuration:
+   - Edit `myzone-backend/src/main/resources/application.yml`
+   - Modify database connection information
+
+4. Double-click to run `start.bat`
+
+#### Method 2: Manual Startup
+
+##### Start Backend
+```bash
+cd myzone-backend
+mvn spring-boot:run
+```
+
+##### Start Frontend
+```bash
+cd myzone-frontend
+npm install
+npm run serve
+```
+
+### Access Address
+
+- **Backend API**: http://localhost:8080
+- **Frontend Page**: http://localhost:3000
+
+### Test Accounts
+
+The system comes with two test accounts:
+
+1. **Admin Account**
+   - Username: admin
+   - Password: 123456
+   - Email: admin@myzone.com
+
+2. **Test Account**
+   - Username: test
+   - Password: 123456
+   - Email: test@myzone.com
+
+### API Interfaces
+
+#### User Authentication
+- `POST /api/user/register` - User registration
+- `POST /api/user/login` - User login
+- `GET /api/user/info` - Get user information
+- `GET /api/user/health` - Health check
+
+### Features
+
+- ✅ User registration and login
+- ✅ JWT authentication
+- ✅ Password encryption storage
+- ✅ Form validation
+- ✅ Route guards
+- ✅ Responsive design
+- ✅ User state management
+
+### Development Notes
+
+#### Port Configuration
+- Backend: 8080
+- Frontend: 3000
+
+#### Database Configuration
+- Database name: myzone
+- Character set: utf8mb4
+- Collation: utf8mb4_unicode_ci
+
+#### Environment Requirements
+- JDK 17+
+- Node.js 16+
+- MySQL 8.0+
+- Maven 3.6+
+
+### Notes
+
+1. Ensure MySQL service is started
+2. Ensure database connection configuration is correct
+3. First run requires execution of database initialization script
+4. Frontend will automatically open browser to access http://localhost:3000
+
+### License
+
+MIT License
+
+### Todo
+4. Add video first frame as cover feature
+
+---
+
+## Chinese
 
 一个基于 Spring Boot + Vue.js 的现代化Web应用项目。
 
-## 项目结构
+### 项目结构
 
 ```
 final_project/
@@ -12,24 +157,24 @@ final_project/
 └── README.md               # 项目说明
 ```
 
-## 技术栈
+### 技术栈
 
-### 后端
+#### 后端
 - **Spring Boot 3.4.8**: 主框架
 - **MyBatis 3.0.4**: ORM框架
 - **MySQL**: 数据库
 - **JWT**: 身份认证
 - **BCrypt**: 密码加密
 
-### 前端
+#### 前端
 - **Vue 3**: 前端框架
 - **Element Plus**: UI组件库
 - **Vue Router**: 路由管理
 - **Axios**: HTTP客户端
 
-## 快速开始
+### 快速开始
 
-### 方法一：使用启动脚本（推荐）
+#### 方法一：使用启动脚本（推荐）
 
 1. 确保已安装必要的环境：
    - JDK 17+
@@ -52,27 +197,27 @@ final_project/
 
 4. 双击运行 `start.bat`
 
-### 方法二：手动启动
+#### 方法二：手动启动
 
-#### 启动后端
+##### 启动后端
 ```bash
 cd myzone-backend
 mvn spring-boot:run
 ```
 
-#### 启动前端
+##### 启动前端
 ```bash
 cd myzone-frontend
 npm install
 npm run serve
 ```
 
-## 访问地址
+### 访问地址
 
 - **后端API**: http://localhost:8080
 - **前端页面**: http://localhost:3000
 
-## 测试账号
+### 测试账号
 
 系统预置了两个测试账号：
 
@@ -86,15 +231,15 @@ npm run serve
    - 密码：123456
    - 邮箱：test@myzone.com
 
-## API接口
+### API接口
 
-### 用户认证
+#### 用户认证
 - `POST /api/user/register` - 用户注册
 - `POST /api/user/login` - 用户登录
 - `GET /api/user/info` - 获取用户信息
 - `GET /api/user/health` - 健康检查
 
-## 功能特性
+### 功能特性
 
 - ✅ 用户注册与登录
 - ✅ JWT身份认证
@@ -104,33 +249,33 @@ npm run serve
 - ✅ 响应式设计
 - ✅ 用户状态管理
 
-## 开发说明
+### 开发说明
 
-### 端口配置
+#### 端口配置
 - 后端：8080
 - 前端：3000
 
-### 数据库配置
+#### 数据库配置
 - 数据库名：myzone
 - 字符集：utf8mb4
 - 排序规则：utf8mb4_unicode_ci
 
-### 环境要求
+#### 环境要求
 - JDK 17+
 - Node.js 16+
 - MySQL 8.0+
 - Maven 3.6+
 
-## 注意事项
+### 注意事项
 
 1. 确保MySQL服务已启动
 2. 确保数据库连接配置正确
 3. 首次运行需要执行数据库初始化脚本
 4. 前端会自动打开浏览器访问 http://localhost:3000
 
-## 许可证
+### 许可证
 
-MIT License 
+MIT License
 
-## Todo
+### Todo
 4.增加视频第一帧作为封面功能

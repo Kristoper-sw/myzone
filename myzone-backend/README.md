@@ -1,4 +1,211 @@
-# MyZone 后端项目
+# MyZone Backend Project | MyZone 后端项目
+
+[English](#english) | [中文](#chinese)
+
+---
+
+## English
+
+## Project Introduction
+
+MyZone is a user management system backend project based on Spring Boot + MyBatis + MySQL, providing user registration, login and other functions.
+
+## Technology Stack
+
+- **Spring Boot 3.4.8**: Main framework
+- **MyBatis 3.0.4**: ORM framework
+- **MySQL**: Database
+- **JWT**: Authentication
+- **BCrypt**: Password encryption
+- **Lombok**: Code simplification
+
+## Project Structure
+
+```
+src/main/java/com/sxw/myzonebackend/
+├── controller/          # Controller layer
+│   └── UserController.java
+├── service/            # Service layer
+│   └── UserService.java
+├── mapper/             # Data access layer
+│   └── UserMapper.java
+├── entity/             # Entity classes
+│   └── User.java
+├── dto/                # Data transfer objects
+│   ├── LoginRequest.java
+│   ├── LoginResponse.java
+│   └── RegisterRequest.java
+├── common/             # Common classes
+│   └── Result.java
+├── util/               # Utility classes
+│   └── JwtUtil.java
+└── exception/          # Exception handling
+    └── GlobalExceptionHandler.java
+```
+
+## Environment Requirements
+
+- JDK 17+
+- MySQL 8.0+
+- Maven 3.6+
+
+## Quick Start
+
+### 1. Database Configuration
+
+1. Create database:
+```sql
+CREATE DATABASE myzone DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+2. Execute initialization script:
+```sql
+-- Execute src/main/resources/sql/init.sql file
+```
+
+### 2. Configuration File
+
+Modify the database connection information in `src/main/resources/application.yml`:
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/myzone?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: your_username
+    password: your_password
+```
+
+### 3. Start Project
+
+```bash
+# Compile project
+mvn clean compile
+
+# Run project
+mvn spring-boot:run
+```
+
+After the project starts, visit `http://localhost:8080/api/user/health` to check service status.
+
+## API Interfaces
+
+### User Registration
+
+**POST** `/api/user/register`
+
+Request body:
+```json
+{
+    "username": "testuser",
+    "password": "123456",
+    "confirmPassword": "123456",
+    "email": "test@example.com",
+    "nickname": "Test User",
+    "phone": "13800138000"
+}
+```
+
+### User Login
+
+**POST** `/api/user/login`
+
+Request body:
+```json
+{
+    "username": "testuser",
+    "password": "123456"
+}
+```
+
+Response body:
+```json
+{
+    "code": 200,
+    "message": "Login successful",
+    "data": {
+        "userId": 1,
+        "username": "testuser",
+        "nickname": "Test User",
+        "email": "test@example.com",
+        "avatar": null,
+        "token": "eyJhbGciOiJIUzUxMiJ9...",
+        "tokenType": "Bearer",
+        "expiresIn": 86400000
+    },
+    "timestamp": 1640995200000
+}
+```
+
+### Get User Information
+
+**GET** `/api/user/info`
+
+Request header:
+```
+Authorization: Bearer your_jwt_token
+```
+
+### Health Check
+
+**GET** `/api/user/health`
+
+## Test Accounts
+
+The system comes with two test accounts:
+
+1. **Admin Account**
+   - Username: admin
+   - Password: 123456
+   - Email: admin@myzone.com
+
+2. **Test Account**
+   - Username: test
+   - Password: 123456
+   - Email: test@myzone.com
+
+## Features
+
+- ✅ User registration (username, email uniqueness validation)
+- ✅ User login (password encryption verification)
+- ✅ JWT token authentication
+- ✅ Parameter validation
+- ✅ Global exception handling
+- ✅ Unified response format
+- ✅ CORS support
+
+## Development Notes
+
+### Password Encryption
+
+Use BCrypt algorithm to encrypt and store user passwords, ensuring security.
+
+### JWT Authentication
+
+- Token validity period: 24 hours
+- Algorithm: HS512
+- Contains information: username, user ID
+
+### Database Design
+
+- User table contains basic information fields
+- Supports username and email uniqueness constraints
+- Includes user status management
+- Automatically records creation and update times
+
+## Notes
+
+1. Please ensure MySQL service is started
+2. Modify database connection configuration to your actual configuration
+3. JWT secret key is recommended to use more complex keys in production environment
+4. HTTPS is recommended in production environment
+
+## License
+
+MIT License
+
+---
+
+## Chinese
 
 ## 项目简介
 
